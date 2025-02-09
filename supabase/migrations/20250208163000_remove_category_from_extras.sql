@@ -1,0 +1,1 @@
+alter table public.extras drop column category; 
