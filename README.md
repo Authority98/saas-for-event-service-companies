@@ -62,6 +62,16 @@ A modern SaaS platform for event service companies to manage their tent rentals 
   - Tailwind CSS
   - Environment variables
 
+## 📋 Prerequisites
+
+- Node.js 18+ and npm
+- Supabase CLI installed globally
+  ```bash
+  npm install -g supabase
+  ```
+- Git for version control
+- A Supabase account and project
+
 ## 📦 Installation
 
 1. **Clone the repository**
@@ -93,6 +103,25 @@ A modern SaaS platform for event service companies to manage their tent rentals 
    ```bash
    npm run dev
    ```
+
+## 📜 Available Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run lint` - Run ESLint
+- `npm run preview` - Preview production build
+- `npm run type-check` - Run TypeScript type checking
+
+## 🌍 Environment Variables
+
+### Required Variables
+- `VITE_SUPABASE_URL` - Your Supabase project URL
+- `VITE_SUPABASE_ANON_KEY` - Your Supabase anonymous key
+
+### Optional Variables
+- `VITE_API_URL` - Custom API URL (defaults to Supabase URL)
+- `VITE_APP_NAME` - Application name for branding
+- `NODE_ENV` - Environment mode (development/production)
 
 ## 🗄️ Database Schema
 
@@ -147,6 +176,12 @@ A modern SaaS platform for event service companies to manage their tent rentals 
    - Set up SSL certificates
    - Configure CORS policies
 
+4. **Verify Deployment**
+   - Check all environment variables are set
+   - Verify database connections
+   - Test authentication flows
+   - Monitor error logging
+
 ## 📝 Development Guidelines
 
 ### Code Structure
@@ -177,13 +212,28 @@ A modern SaaS platform for event service companies to manage their tent rentals 
 - Error boundary implementation
 - Loading state management
 
+## 🧪 Testing
+
+> Note: Testing implementation is planned for future releases
+
+Planned testing setup:
+- Unit tests with Jest
+- Component testing with React Testing Library
+- E2E testing with Cypress
+- API testing with Supertest
+
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+### Commit Guidelines
+- Use semantic commit messages
+- Include issue references when applicable
+- Keep commits focused and atomic
 
 ## 📄 License
 
@@ -192,9 +242,14 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## 👥 Team
 
 - Development Team
+  - Frontend Developers
+  - Backend Developers
+  - UI/UX Designers
 - Project Managers
-- Designers
+- Quality Assurance
 
 ## 📞 Support
 
-For support, email [support@email.com] 
+- For support, email [support@email.com]
+- For bug reports, use GitHub Issues
+- For feature requests, use GitHub Discussions 
