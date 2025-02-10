@@ -6,7 +6,6 @@ import EventSummaryBar from '../EventDetails/EventSummaryBar';
 import { useEvent } from '../../contexts/EventContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { showToast } from '../../lib/toast';
-import { Toaster } from '../../components/ui/toaster';
 
 const Header: React.FC = () => {
   const theme = useTheme();
@@ -77,7 +76,6 @@ const Header: React.FC = () => {
 
         {showEventSummary && eventDetails && <EventSummaryBar eventDetails={eventDetails} />}
       </Toolbar>
-      <Toaster />
     </AppBar>
   );
 };

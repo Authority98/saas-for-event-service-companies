@@ -25,7 +25,6 @@ import {
 import { Edit, Trash2, X, Check, Plus, Image as ImageIcon } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { showToast } from '../../lib/toast';
-import { Toaster } from '../../components/ui/toaster';
 import type { Product, TentType } from '../../types';
 
 interface ProductsManagerProps {
@@ -446,7 +445,6 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({
           </Button>
         </DialogActions>
       </Dialog>
-      <Toaster />
     </Box>
   );
 };

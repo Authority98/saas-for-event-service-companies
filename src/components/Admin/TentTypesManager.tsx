@@ -17,7 +17,6 @@ import { Plus, Edit, Trash2 } from 'lucide-react';
 import { TentTypeForm } from './';
 import { supabase } from '../../lib/supabase';
 import { showToast } from '../../lib/toast';
-import { Toaster } from '../../components/ui/toaster';
 import type { TentType } from '../../types';
 
 interface TentTypeFormData {
@@ -210,7 +209,6 @@ const TentTypesManager = () => {
         loading={loading}
         initialData={getFormData(selectedTentType)}
       />
-      <Toaster />
     </Box>
   );
 };
