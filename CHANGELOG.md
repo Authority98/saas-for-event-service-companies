@@ -26,6 +26,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Commit guidelines
   - Support channels
 
+### Changed
+- Enhanced header styling
+  - Updated background color to #F5F5F5
+  - Added subtle shadow effect
+  - Improved visual hierarchy
+
 ## [0.2.0] - 2024-02-08
 
 ### Added

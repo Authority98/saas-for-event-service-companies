@@ -14,12 +14,16 @@ import {
   Tent
 } from 'lucide-react';
 import dayjs from 'dayjs';
-import type { Product } from '../../types';
+import type { Product, EventDetails } from '../../types';
 import { useEvent } from '../../contexts/EventContext';
 import { useNavigate } from 'react-router-dom';
 
-const EventSummaryBar: React.FC = () => {
-  const { eventDetails, updateEventDetails } = useEvent();
+interface EventSummaryBarProps {
+  eventDetails: EventDetails;
+}
+
+const EventSummaryBar: React.FC<EventSummaryBarProps> = ({ eventDetails }) => {
+  const { updateEventDetails } = useEvent();
   const navigate = useNavigate();
 
   if (!eventDetails) return null;

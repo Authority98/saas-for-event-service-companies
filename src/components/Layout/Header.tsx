@@ -1,16 +1,28 @@
 import React from 'react';
-import { AppBar, Toolbar, Typography, Box } from '@mui/material';
+import { AppBar, Toolbar, Typography, Box, useTheme, alpha } from '@mui/material';
 import { Tent } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import EventSummaryBar from '../EventDetails/EventSummaryBar';
+import type { EventDetails } from '../../types';
 
 const Header: React.FC = () => {
+  const theme = useTheme();
   // Get event details from localStorage
   const savedEventDetails = localStorage.getItem('eventDetails');
-  const eventDetails = savedEventDetails ? JSON.parse(savedEventDetails) : null;
+  const eventDetails: EventDetails | null = savedEventDetails ? JSON.parse(savedEventDetails) : null;
 
   return (
-    <AppBar position="sticky" color="transparent" elevation={0} sx={{ borderBottom: '1px solid', borderColor: 'divider' }}>
+    <AppBar 
+      position="sticky" 
+      color="transparent" 
+      elevation={0} 
+      sx={{ 
+        borderBottom: '1px solid', 
+        borderColor: 'divider',
+        bgcolor: '#F5F5F5',
+        boxShadow: theme => `0 2px 8px ${alpha(theme.palette.common.black, 0.05)}`
+      }}
+    >
       <Toolbar 
         sx={{ 
           display: 'flex', 
