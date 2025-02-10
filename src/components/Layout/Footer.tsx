@@ -1,11 +1,17 @@
 import React from 'react';
 import { Box, Container, Typography } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { LogIn, LayoutDashboard } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
 const Footer: React.FC = () => {
   const { user } = useAuth();
+  const location = useLocation();
+
+  // Don't show footer in admin/dashboard area
+  if (location.pathname.startsWith('/dashboard')) {
+    return null;
+  }
 
   return (
     <Box 

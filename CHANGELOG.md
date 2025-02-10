@@ -44,6 +44,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Improved shadows and hover effects
   - Replaced light backgrounds with white + shadows
   - Better visual consistency across components
+- Updated component visibility
+  - Footer now hidden in admin/dashboard area
+  - EventSummaryBar hidden in specific routes
+  - Better route-based conditional rendering
 - Updated EventSummaryBar styling
   - Black background with white text for tent type chips
   - Improved layout and spacing
