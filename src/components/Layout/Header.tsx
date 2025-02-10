@@ -1,29 +1,14 @@
 import React from 'react';
-import { AppBar, Toolbar, Typography, Box, useTheme, alpha, IconButton } from '@mui/material';
-import { Tent, LogOut } from 'lucide-react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { AppBar, Toolbar, Typography, Box, useTheme, alpha } from '@mui/material';
+import { Tent } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
 import EventSummaryBar from '../EventDetails/EventSummaryBar';
 import { useEvent } from '../../contexts/EventContext';
-import { useAuth } from '../../contexts/AuthContext';
-import { showToast } from '../../lib/toast';
 
 const Header: React.FC = () => {
   const theme = useTheme();
   const { eventDetails } = useEvent();
   const location = useLocation();
-  const navigate = useNavigate();
-  const { signOut, user } = useAuth();
-
-  const handleSignOut = async () => {
-    try {
-      await signOut();
-      showToast.success('Successfully logged out!');
-      navigate('/login');
-    } catch (error) {
-      console.error('Error signing out:', error);
-      showToast.error('Failed to log out. Please try again.');
-    }
-  };
 
   // Only show EventSummaryBar on tent selection page
   const showEventSummary = location.pathname === '/tent-selection';
@@ -78,20 +63,6 @@ const Header: React.FC = () => {
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           {showEventSummary && eventDetails && <EventSummaryBar eventDetails={eventDetails} />}
-          {user && (
-            <IconButton
-              onClick={handleSignOut}
-              sx={{
-                color: 'text.secondary',
-                '&:hover': {
-                  color: 'error.main',
-                  bgcolor: (theme) => alpha(theme.palette.error.main, 0.1)
-                }
-              }}
-            >
-              <LogOut size={20} />
-            </IconButton>
-          )}
         </Box>
       </Toolbar>
     </AppBar>

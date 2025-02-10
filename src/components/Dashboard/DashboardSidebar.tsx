@@ -12,6 +12,8 @@ import {
 } from '@mui/material';
 import { Bell, LogOut } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import { toast } from '../../contexts/ToastContext';
 import type { MenuItem } from './types';
 import { alpha } from '@mui/material/styles';
 
@@ -27,10 +29,24 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
   menuItems,
   activeTab,
   onTabChange,
-  onSignOut,
   sidebarWidth,
 }) => {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    try {
+      toast.info('Logging out...');
+      await signOut();
+      toast.success('Successfully logged out!');
+      setTimeout(() => {
+        navigate('/login');
+      }, 2000);
+    } catch (error) {
+      console.error('Error signing out:', error);
+      toast.error('Failed to log out. Please try again.');
+    }
+  };
 
   return (
     <Box
@@ -124,13 +140,14 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
         }}
       >
         <ListItemButton
-          onClick={onSignOut}
+          onClick={handleSignOut}
           sx={{
             borderRadius: 2,
             color: 'text.secondary',
             transition: 'all 0.2s',
             '&:hover': {
-              bgcolor: (theme) => alpha(theme.palette.text.primary, 0.04),
+              bgcolor: (theme) => alpha(theme.palette.error.main, 0.1),
+              color: 'error.main',
             },
           }}
         >
