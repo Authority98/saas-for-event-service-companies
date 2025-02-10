@@ -8,12 +8,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Toast notifications for important events
-  - Login success/failure notifications
-  - Product CRUD operation notifications
-  - Tent type CRUD operation notifications
-  - Logout notifications
-  - Warning notifications for validation
+- Custom Material-UI toast notifications
+  - Success, error, warning, and info variants
+  - Consistent styling with app theme
+  - Auto-dismiss functionality
+  - Top-right positioning
+  - Used for all important events
+    - Login success/failure
+    - Product CRUD operations
+    - Tent type operations
+    - Logout notifications
+    - Form validation warnings
 - Decorative gradient borders to all dashboard cards
   - Added to stat boxes with alternating gradient directions
   - Consistent gradient styling across all components

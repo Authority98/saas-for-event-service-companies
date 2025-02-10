@@ -16,6 +16,7 @@ import LoginPage from './pages/LoginPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './contexts/AuthContext';
 import { EventProvider } from './contexts/EventContext';
+import { ToastProvider } from './contexts/ToastContext';
 
 const theme = createTheme({
   palette: {
@@ -58,33 +59,35 @@ function App() {
         <CssBaseline />
         <AuthProvider>
           <EventProvider>
-            <BrowserRouter>
-              <Box sx={{ 
-                display: 'flex', 
-                flexDirection: 'column',
-                minHeight: '100vh'
-              }}>
-                <Header />
-                <Box sx={{ flex: 1 }}>
-                  <Routes>
-                    <Route path="/" element={<EventDetailsPage />} />
-                    <Route path="/tent-selection" element={<TentSelectionPage />} />
-                    <Route path="/contact-details" element={<ContactDetailsPage />} />
-                    <Route path="/thank-you" element={<ThankYouPage />} />
-                    <Route path="/login" element={<LoginPage />} />
-                    <Route
-                      path="/dashboard"
-                      element={
-                        <ProtectedRoute>
-                          <DashboardPage />
-                        </ProtectedRoute>
-                      }
-                    />
-                  </Routes>
+            <ToastProvider>
+              <BrowserRouter>
+                <Box sx={{ 
+                  display: 'flex', 
+                  flexDirection: 'column',
+                  minHeight: '100vh'
+                }}>
+                  <Header />
+                  <Box sx={{ flex: 1 }}>
+                    <Routes>
+                      <Route path="/" element={<EventDetailsPage />} />
+                      <Route path="/tent-selection" element={<TentSelectionPage />} />
+                      <Route path="/contact-details" element={<ContactDetailsPage />} />
+                      <Route path="/thank-you" element={<ThankYouPage />} />
+                      <Route path="/login" element={<LoginPage />} />
+                      <Route
+                        path="/dashboard"
+                        element={
+                          <ProtectedRoute>
+                            <DashboardPage />
+                          </ProtectedRoute>
+                        }
+                      />
+                    </Routes>
+                  </Box>
+                  <Footer />
                 </Box>
-                <Footer />
-              </Box>
-            </BrowserRouter>
+              </BrowserRouter>
+            </ToastProvider>
           </EventProvider>
         </AuthProvider>
       </LocalizationProvider>

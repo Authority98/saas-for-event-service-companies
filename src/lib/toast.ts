@@ -1,35 +1,20 @@
-import { toast } from "../components/ui/toast";
+import { useToast } from '../contexts/ToastContext';
 
 export const showToast = {
   success: (message: string) => {
-    toast({
-      title: "Success",
-      description: message,
-      variant: "default",
-      duration: 3000,
-    });
+    const { showToast } = useToast();
+    showToast(message, 'success');
   },
   error: (message: string) => {
-    toast({
-      title: "Error",
-      description: message,
-      variant: "destructive",
-      duration: 4000,
-    });
+    const { showToast } = useToast();
+    showToast(message, 'error');
   },
   info: (message: string) => {
-    toast({
-      title: "Info",
-      description: message,
-      duration: 3000,
-    });
+    const { showToast } = useToast();
+    showToast(message, 'info');
   },
   warning: (message: string) => {
-    toast({
-      title: "Warning",
-      description: message,
-      variant: "destructive",
-      duration: 3000,
-    });
+    const { showToast } = useToast();
+    showToast(message, 'warning');
   }
 }; 

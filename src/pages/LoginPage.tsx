@@ -13,7 +13,6 @@ import {
 } from '@mui/material';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { Toaster } from '../components/ui/toaster';
 import { showToast } from '../lib/toast';
 
 const LoginPage: React.FC = () => {
@@ -174,7 +173,6 @@ const LoginPage: React.FC = () => {
           </form>
         </Paper>
       </Box>
-      <Toaster />
     </Container>
   );
 };
