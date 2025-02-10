@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Decorative gradient borders to all dashboard cards
+  - Added to stat boxes with alternating gradient directions
+  - Consistent gradient styling across all components
+  - Enhanced visual hierarchy
 - InfoItem component for displaying event details
 - EventSummaryBar visibility control
   - Now only appears on tent selection page
@@ -35,6 +39,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Support channels
 
 ### Changed
+- Enhanced dashboard UI components
+  - Removed pending tag from recent enquiries
+  - Improved shadows and hover effects
+  - Replaced light backgrounds with white + shadows
+  - Better visual consistency across components
 - Updated EventSummaryBar styling
   - Black background with white text for tent type chips
   - Improved layout and spacing

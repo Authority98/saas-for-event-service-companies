@@ -2,18 +2,14 @@ import React from 'react';
 import { 
   Paper, 
   Typography, 
-  List, 
-  ListItem, 
-  ListItemText, 
-  ListItemAvatar,
-  Avatar,
-  Divider,
   Box,
-  Chip,
   useTheme,
-  alpha
+  alpha,
+  IconButton,
+  Tooltip,
+  LinearProgress
 } from '@mui/material';
-import { Mail } from 'lucide-react';
+import { Mail, Calendar, Users, ArrowUpRight } from 'lucide-react';
 import dayjs from 'dayjs';
 
 interface Enquiry {
@@ -37,54 +33,148 @@ const RecentEnquiries: React.FC<RecentEnquiriesProps> = ({ enquiries }) => {
         p: 3,
         height: '100%',
         borderRadius: 2,
-        boxShadow: (theme) => `0 0 20px ${alpha(theme.palette.common.black, 0.05)}`
+        bgcolor: '#ffffff',
+        position: 'relative',
+        overflow: 'hidden',
+        transition: 'all 0.2s',
+        boxShadow: '0 4px 24px 0 rgba(34, 41, 47, 0.1)',
+        '&:hover': {
+          transform: 'translateY(-4px)',
+          boxShadow: '0 6px 30px 0 rgba(34, 41, 47, 0.2)',
+        }
       }}
     >
-      <Typography variant="h6" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
-        <Mail size={20} />
-        Recent Enquiries
-      </Typography>
-      <List>
-        {enquiries.map((enquiry, index) => (
-          <React.Fragment key={enquiry.id}>
-            <ListItem sx={{ px: 0 }}>
-              <ListItemAvatar>
-                <Avatar sx={{ bgcolor: 'primary.main' }}>
-                  {enquiry.name[0]}
-                </Avatar>
-              </ListItemAvatar>
-              <ListItemText
-                primary={enquiry.name}
-                secondary={
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
-                    <Typography variant="caption" color="text.secondary">
-                      {enquiry.eventType}
-                    </Typography>
-                    <Chip 
-                      label={dayjs(enquiry.date).format('MMM D, YYYY')}
-                      size="small"
-                      sx={{ 
-                        bgcolor: 'background.default',
-                        fontSize: '0.75rem'
-                      }}
-                    />
-                  </Box>
+      {/* Decorative gradient line */}
+      <Box
+        sx={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: '4px',
+          background: `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`
+        }}
+      />
+
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Box
+            sx={{
+              width: 40,
+              height: 40,
+              borderRadius: 2,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              bgcolor: alpha(theme.palette.primary.main, 0.1),
+              color: 'primary.main'
+            }}
+          >
+            <Mail size={20} />
+          </Box>
+          <Box>
+            <Typography variant="h6" sx={{ fontWeight: 600, lineHeight: 1.2 }}>
+              Recent Enquiries
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              Last {enquiries.length} enquiries
+            </Typography>
+          </Box>
+        </Box>
+        <LinearProgress 
+          variant="determinate" 
+          value={70} 
+          sx={{ 
+            width: 60,
+            height: 4,
+            borderRadius: 2,
+            bgcolor: alpha(theme.palette.primary.main, 0.1),
+            '& .MuiLinearProgress-bar': {
+              bgcolor: 'primary.main'
+            }
+          }} 
+        />
+      </Box>
+
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        {enquiries.map((enquiry) => (
+          <Box
+            key={enquiry.id}
+            sx={{
+              p: 2,
+              borderRadius: 2,
+              bgcolor: '#ffffff',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 2,
+              transition: 'all 0.2s',
+              cursor: 'pointer',
+              boxShadow: '0 2px 8px 0 rgba(34, 41, 47, 0.08)',
+              '&:hover': {
+                transform: 'translateX(4px)',
+                boxShadow: '0 4px 16px 0 rgba(34, 41, 47, 0.12)',
+                '& .arrow-icon': {
+                  opacity: 1,
+                  transform: 'translateX(0)',
                 }
-              />
-              <Chip 
-                label="Pending"
+              }
+            }}
+          >
+            <Box
+              sx={{
+                width: 40,
+                height: 40,
+                borderRadius: '12px',
+                bgcolor: (theme) => alpha(theme.palette.primary.main, 0.1),
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'primary.main',
+                fontWeight: 600,
+                fontSize: '1rem'
+              }}
+            >
+              {enquiry.name[0].toUpperCase()}
+            </Box>
+
+            <Box sx={{ flex: 1 }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
+                {enquiry.name}
+              </Typography>
+
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                  <Calendar size={14} />
+                  <Typography variant="caption" color="text.secondary">
+                    {dayjs(enquiry.date).format('MMM D, YYYY')}
+                  </Typography>
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                  <Users size={14} />
+                  <Typography variant="caption" color="text.secondary">
+                    {enquiry.eventType}
+                  </Typography>
+                </Box>
+              </Box>
+            </Box>
+
+            <Tooltip title="View Details">
+              <IconButton 
+                className="arrow-icon"
                 size="small"
                 sx={{ 
-                  bgcolor: alpha(theme.palette.warning.main, 0.1),
-                  color: 'warning.main',
-                  fontWeight: 500
+                  opacity: 0,
+                  transform: 'translateX(-8px)',
+                  transition: 'all 0.2s',
+                  color: 'primary.main'
                 }}
-              />
-            </ListItem>
-            {index < enquiries.length - 1 && <Divider sx={{ my: 1 }} />}
-          </React.Fragment>
+              >
+                <ArrowUpRight size={16} />
+              </IconButton>
+            </Tooltip>
+          </Box>
         ))}
-      </List>
+      </Box>
     </Paper>
   );
 };

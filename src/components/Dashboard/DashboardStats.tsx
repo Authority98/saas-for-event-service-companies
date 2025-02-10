@@ -19,19 +19,37 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({ stats }) => {
               height: '100%',
               position: 'relative',
               overflow: 'hidden',
-              transition: 'transform 0.2s, box-shadow 0.2s',
+              transition: 'all 0.2s',
+              borderRadius: 2,
+              bgcolor: '#ffffff',
+              boxShadow: '0 4px 24px 0 rgba(34, 41, 47, 0.1)',
               '&:hover': {
                 transform: 'translateY(-4px)',
-                boxShadow: 4,
-              },
+                boxShadow: '0 6px 30px 0 rgba(34, 41, 47, 0.2)',
+              }
             }}
           >
+            {/* Decorative gradient line */}
             <Box
               sx={{
                 position: 'absolute',
                 top: 0,
+                left: 0,
                 right: 0,
-                p: 2,
+                height: '4px',
+                background: (theme) => `linear-gradient(90deg, ${
+                  index % 2 === 0 ? theme.palette.primary.main : theme.palette.secondary.main
+                }, ${
+                  index % 2 === 0 ? theme.palette.secondary.main : theme.palette.primary.main
+                })`
+              }}
+            />
+
+            <Box
+              sx={{
+                position: 'absolute',
+                top: 12,
+                right: 12,
                 color: 'primary.main',
                 opacity: 0.1,
                 transform: 'scale(2)',
@@ -40,6 +58,7 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({ stats }) => {
             >
               {stat.icon}
             </Box>
+
             <Box sx={{ position: 'relative', zIndex: 1 }}>
               <Typography variant="h4" sx={{ mb: 1, fontWeight: 600 }}>
                 {stat.value.toLocaleString()}
