@@ -7,6 +7,9 @@ interface ToastContextType {
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
+// Create a global reference to the showToast function
+let globalShowToast: ((message: string, type: AlertColor) => void) | undefined;
+
 export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState('');
@@ -17,6 +20,9 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setType(type);
     setOpen(true);
   };
+
+  // Store the showToast function in our global reference
+  globalShowToast = showToast;
 
   const handleClose = () => {
     setOpen(false);
@@ -45,4 +51,12 @@ export const useToast = () => {
     throw new Error('useToast must be used within a ToastProvider');
   }
   return context;
+};
+
+// Export the global toast function
+export const toast = {
+  success: (message: string) => globalShowToast?.(message, 'success'),
+  error: (message: string) => globalShowToast?.(message, 'error'),
+  warning: (message: string) => globalShowToast?.(message, 'warning'),
+  info: (message: string) => globalShowToast?.(message, 'info'),
 }; 
