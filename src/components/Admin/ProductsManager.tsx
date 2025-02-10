@@ -24,6 +24,8 @@ import {
 } from '@mui/material';
 import { Edit, Trash2, X, Check, Plus, Image as ImageIcon } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { showToast } from '../../lib/toast';
+import { Toaster } from '../../components/ui/toaster';
 import type { Product, TentType } from '../../types';
 
 interface ProductsManagerProps {
@@ -53,6 +55,7 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({
   const handleAddProduct = async () => {
     if (!newProduct.name || !newProduct.price) {
       setError('Name and price are required');
+      showToast.warning('Please fill in all required fields.');
       return;
     }
 
@@ -66,6 +69,7 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({
 
       if (error) throw error;
 
+      showToast.success('Product added successfully!');
       setNewProduct({
         name: '',
         description: '',
@@ -79,6 +83,7 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({
     } catch (err) {
       console.error('Error adding product:', err);
       setError('Failed to add product');
+      showToast.error('Failed to add product. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -102,11 +107,14 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({
         .eq('id', product.id);
 
       if (error) throw error;
+
+      showToast.success('Product updated successfully!');
       setEditingProduct(null);
       onUpdate();
     } catch (err) {
       console.error('Error updating product:', err);
       setError('Failed to update product');
+      showToast.error('Failed to update product. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -123,11 +131,14 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({
         .eq('id', id);
 
       if (error) throw error;
+
+      showToast.success('Product deleted successfully!');
       setDeleteConfirmation(null);
       onUpdate();
     } catch (err) {
       console.error('Error deleting product:', err);
       setError('Failed to delete product');
+      showToast.error('Failed to delete product. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -435,6 +446,7 @@ const ProductsManager: React.FC<ProductsManagerProps> = ({
           </Button>
         </DialogActions>
       </Dialog>
+      <Toaster />
     </Box>
   );
 };

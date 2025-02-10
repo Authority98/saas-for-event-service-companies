@@ -4,11 +4,25 @@ import { Tent } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import EventSummaryBar from '../EventDetails/EventSummaryBar';
 import { useEvent } from '../../contexts/EventContext';
+import { useAuth } from '../../contexts/AuthContext';
+import { showToast } from '../../lib/toast';
+import { Toaster } from '../../components/ui/toaster';
 
 const Header: React.FC = () => {
   const theme = useTheme();
   const { eventDetails } = useEvent();
   const location = useLocation();
+  const { signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      showToast.success('Successfully logged out!');
+    } catch (error) {
+      console.error('Error signing out:', error);
+      showToast.error('Failed to log out. Please try again.');
+    }
+  };
 
   // Only show EventSummaryBar on tent selection page
   const showEventSummary = location.pathname === '/tent-selection';
@@ -63,6 +77,7 @@ const Header: React.FC = () => {
 
         {showEventSummary && eventDetails && <EventSummaryBar eventDetails={eventDetails} />}
       </Toolbar>
+      <Toaster />
     </AppBar>
   );
 };

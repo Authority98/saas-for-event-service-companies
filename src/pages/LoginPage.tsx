@@ -13,6 +13,8 @@ import {
 } from '@mui/material';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { Toaster } from '../components/ui/toaster';
+import { showToast } from '../lib/toast';
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
@@ -29,9 +31,11 @@ const LoginPage: React.FC = () => {
       setError('');
       setLoading(true);
       await signIn(email, password);
+      showToast.success('Successfully logged in!');
       navigate('/dashboard');
     } catch (err) {
       setError('Invalid email or password');
+      showToast.error('Login failed. Please check your credentials.');
     } finally {
       setLoading(false);
     }
@@ -170,6 +174,7 @@ const LoginPage: React.FC = () => {
           </form>
         </Paper>
       </Box>
+      <Toaster />
     </Container>
   );
 };

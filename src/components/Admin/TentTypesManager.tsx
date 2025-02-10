@@ -16,6 +16,8 @@ import {
 import { Plus, Edit, Trash2 } from 'lucide-react';
 import { TentTypeForm } from './';
 import { supabase } from '../../lib/supabase';
+import { showToast } from '../../lib/toast';
+import { Toaster } from '../../components/ui/toaster';
 import type { TentType } from '../../types';
 
 interface TentTypeFormData {
@@ -64,11 +66,13 @@ const TentTypesManager = () => {
 
       if (supabaseError) throw supabaseError;
 
+      showToast.success('Tent type added successfully!');
       setIsAddOpen(false);
       fetchTentTypes();
     } catch (err) {
       console.error('Error adding tent type:', err);
       setError('Failed to add tent type');
+      showToast.error('Failed to add tent type. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -88,12 +92,14 @@ const TentTypesManager = () => {
 
       if (supabaseError) throw supabaseError;
 
+      showToast.success('Tent type updated successfully!');
       setIsEditOpen(false);
       setSelectedTentType(null);
       fetchTentTypes();
     } catch (err) {
       console.error('Error updating tent type:', err);
       setError('Failed to update tent type');
+      showToast.error('Failed to update tent type. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -111,10 +117,12 @@ const TentTypesManager = () => {
 
       if (supabaseError) throw supabaseError;
 
+      showToast.success('Tent type deleted successfully!');
       fetchTentTypes();
     } catch (err) {
       console.error('Error deleting tent type:', err);
       setError('Failed to delete tent type');
+      showToast.error('Failed to delete tent type. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -202,6 +210,7 @@ const TentTypesManager = () => {
         loading={loading}
         initialData={getFormData(selectedTentType)}
       />
+      <Toaster />
     </Box>
   );
 };
