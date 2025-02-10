@@ -8,6 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- InfoItem component for displaying event details
+- EventSummaryBar visibility control
+  - Now only appears on tent selection page
+  - Hidden in admin/dashboard area and login page
+- Improved state management for event details
+  - Added proper date parsing
+  - Enhanced error handling
+  - Added clearEventDetails functionality
 - Initial project setup with React, TypeScript, and Vite
 - Material-UI integration for UI components
 - Supabase integration for backend services
@@ -27,10 +35,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Support channels
 
 ### Changed
+- Updated EventSummaryBar styling
+  - Black background with white text for tent type chips
+  - Improved layout and spacing
+  - Better responsive design
+- Enhanced event details persistence
+  - Better local storage handling
+  - Improved state synchronization
+  - Added data cleanup on unmount
 - Enhanced header styling
   - Updated background color to #F5F5F5
   - Added subtle shadow effect
   - Improved visual hierarchy
+
+### Fixed
+- Real-time update issues with InfoItem component
+- Event details persistence problems
+- State management in EventContext
+- Date parsing and handling in forms
+- Initial data loading in edit forms
+- Form reset on dialog close
+- Type validation in form submissions
+- Dialog transition smoothness
+- Data refresh after operations
+- Error message display
+- Loading state indicators
 
 ## [0.2.0] - 2024-02-08
 
@@ -56,15 +85,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added error handling
   - Added success feedback
   - Added confirmation dialogs
-
-### Fixed
-- Initial data loading in edit forms
-- Form reset on dialog close
-- Type validation in form submissions
-- Dialog transition smoothness
-- Data refresh after operations
-- Error message display
-- Loading state indicators
 
 ## [0.1.0] - 2024-02-07
 
