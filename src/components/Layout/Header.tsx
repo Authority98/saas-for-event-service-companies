@@ -1,15 +1,17 @@
 import React from 'react';
 import { AppBar, Toolbar, Typography, Box, useTheme, alpha } from '@mui/material';
 import { Tent } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import EventSummaryBar from '../EventDetails/EventSummaryBar';
-import type { EventDetails } from '../../types';
+import { useEvent } from '../../contexts/EventContext';
 
 const Header: React.FC = () => {
   const theme = useTheme();
-  // Get event details from localStorage
-  const savedEventDetails = localStorage.getItem('eventDetails');
-  const eventDetails: EventDetails | null = savedEventDetails ? JSON.parse(savedEventDetails) : null;
+  const { eventDetails } = useEvent();
+  const location = useLocation();
+
+  // Only show EventSummaryBar on tent selection page
+  const showEventSummary = location.pathname === '/tent-selection';
 
   return (
     <AppBar 
@@ -59,7 +61,7 @@ const Header: React.FC = () => {
           </Link>
         </Box>
 
-        {eventDetails && <EventSummaryBar eventDetails={eventDetails} />}
+        {showEventSummary && eventDetails && <EventSummaryBar eventDetails={eventDetails} />}
       </Toolbar>
     </AppBar>
   );

@@ -23,27 +23,22 @@ import { supabase } from '../lib/supabase';
 
 const EventDetailsPage: React.FC = () => {
   const navigate = useNavigate();
-  const { eventDetails: contextEventDetails, updateEventDetails } = useEvent();
+  const { clearEventDetails, updateEventDetails } = useEvent();
   const [tentTypes, setTentTypes] = useState<TentType[]>([]);
   const [loading, setLoading] = useState(true);
-  const [eventDetails, setEventDetails] = useState<EventDetails>(() => {
-    if (contextEventDetails) {
-      return contextEventDetails;
-    }
-    return {
-      eventDate: dayjs().toDate(),
-      venueLocation: '',
-      totalGuests: 0,
-      formalDiningSeats: 0,
-      interestedIn: {},
-    };
-  });
 
+  // Clear any old data when component mounts
   useEffect(() => {
-    if (contextEventDetails) {
-      setEventDetails(contextEventDetails);
-    }
-  }, [contextEventDetails]);
+    clearEventDetails();
+  }, [clearEventDetails]);
+
+  const [eventDetails, setEventDetails] = useState<EventDetails>({
+    eventDate: dayjs().toDate(),
+    venueLocation: '',
+    totalGuests: 0,
+    formalDiningSeats: 0,
+    interestedIn: {},
+  });
 
   useEffect(() => {
     fetchTentTypes();
@@ -67,7 +62,7 @@ const EventDetailsPage: React.FC = () => {
       setTentTypes(data || []);
       setEventDetails(prev => ({
         ...prev,
-        interestedIn: prev.interestedIn || initialInterestedIn
+        interestedIn: initialInterestedIn
       }));
     } catch (err) {
       console.error('Error fetching tent types:', err);
@@ -84,7 +79,9 @@ const EventDetailsPage: React.FC = () => {
 
   const handleNumberChange = (field: 'totalGuests' | 'formalDiningSeats', value: string) => {
     const numberValue = value === '' ? 0 : Math.max(0, parseInt(value) || 0);
-    setEventDetails({ ...eventDetails, [field]: numberValue });
+    const newDetails = { ...eventDetails, [field]: numberValue };
+    setEventDetails(newDetails);
+    updateEventDetails(newDetails);
   };
 
   return (
@@ -101,7 +98,14 @@ const EventDetailsPage: React.FC = () => {
                 <DatePicker
                   label="Event Date"
                   value={dayjs(eventDetails.eventDate)}
-                  onChange={(date) => setEventDetails({ ...eventDetails, eventDate: date?.toDate() || new Date() })}
+                  onChange={(date) => {
+                    const newDetails = { 
+                      ...eventDetails, 
+                      eventDate: date?.toDate() || new Date() 
+                    };
+                    setEventDetails(newDetails);
+                    updateEventDetails(newDetails);
+                  }}
                   slotProps={{ textField: { fullWidth: true } }}
                 />
               </Grid>
@@ -111,7 +115,14 @@ const EventDetailsPage: React.FC = () => {
                   fullWidth
                   label="Venue Location"
                   value={eventDetails.venueLocation}
-                  onChange={(e) => setEventDetails({ ...eventDetails, venueLocation: e.target.value })}
+                  onChange={(e) => {
+                    const newDetails = { 
+                      ...eventDetails, 
+                      venueLocation: e.target.value 
+                    };
+                    setEventDetails(newDetails);
+                    updateEventDetails(newDetails);
+                  }}
                 />
               </Grid>
 
@@ -160,13 +171,17 @@ const EventDetailsPage: React.FC = () => {
                             outline: (theme) => `2px solid ${theme.palette.primary.main}`,
                           })
                         }}
-                        onClick={() => setEventDetails({
-                          ...eventDetails,
-                          interestedIn: { 
-                            ...eventDetails.interestedIn, 
-                            [key]: !eventDetails.interestedIn[key]
-                          }
-                        })}
+                        onClick={() => {
+                          const newDetails = {
+                            ...eventDetails,
+                            interestedIn: { 
+                              ...eventDetails.interestedIn, 
+                              [key]: !eventDetails.interestedIn[key]
+                            }
+                          };
+                          setEventDetails(newDetails);
+                          updateEventDetails(newDetails);
+                        }}
                       >
                         <CardActionArea>
                           <CardMedia

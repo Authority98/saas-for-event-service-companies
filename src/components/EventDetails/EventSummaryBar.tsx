@@ -3,7 +3,8 @@ import {
   Box, 
   Typography, 
   Tooltip, 
-  Chip
+  Chip,
+  useTheme
 } from '@mui/material';
 import { 
   Calendar, 
@@ -16,7 +17,8 @@ import {
 import dayjs from 'dayjs';
 import type { Product, EventDetails } from '../../types';
 import { useEvent } from '../../contexts/EventContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import InfoItem from './InfoItem';
 
 interface EventSummaryBarProps {
   eventDetails: EventDetails;
@@ -25,8 +27,11 @@ interface EventSummaryBarProps {
 const EventSummaryBar: React.FC<EventSummaryBarProps> = ({ eventDetails }) => {
   const { updateEventDetails } = useEvent();
   const navigate = useNavigate();
+  const location = useLocation();
+  const theme = useTheme();
 
-  if (!eventDetails) return null;
+  // Don't show in admin/dashboard area or login page
+  if (!eventDetails || location.pathname.startsWith('/dashboard') || location.pathname === '/login') return null;
 
   const handleDelete = (key: string) => {
     // Update event details
@@ -49,30 +54,6 @@ const EventSummaryBar: React.FC<EventSummaryBarProps> = ({ eventDetails }) => {
 
     updateEventDetails(updatedEventDetails);
   };
-
-  const InfoItem = ({ icon: Icon, label, value }: { icon: any, label: string, value: string | number }) => (
-    <Box 
-      sx={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        gap: 1,
-        px: { xs: 1, md: 2 },
-        py: 0.5,
-        borderRadius: 1,
-        bgcolor: 'background.paper',
-        border: '1px solid',
-        borderColor: 'divider'
-      }}
-    >
-      <Icon size={16} />
-      <Typography 
-        variant="body2" 
-        sx={{ fontWeight: 500 }}
-      >
-        {value}
-      </Typography>
-    </Box>
-  );
 
   const selectedTentTypes = Object.entries(eventDetails.interestedIn)
     .filter(([_, value]) => value)
@@ -135,12 +116,12 @@ const EventSummaryBar: React.FC<EventSummaryBarProps> = ({ eventDetails }) => {
               label={label}
               onDelete={() => handleDelete(key)}
               deleteIcon={<X size={14} />}
-              variant="outlined"
+              variant="filled"
               sx={{
-                bgcolor: 'background.paper',
+                bgcolor: 'black',
+                color: 'white',
                 borderRadius: 1,
                 height: 32,
-                borderColor: 'divider',
                 '& .MuiChip-label': {
                   px: 1,
                   fontWeight: 500,
@@ -151,10 +132,10 @@ const EventSummaryBar: React.FC<EventSummaryBarProps> = ({ eventDetails }) => {
                   color: 'inherit'
                 },
                 '& .MuiChip-deleteIcon': {
-                  color: 'text.secondary',
+                  color: 'white',
                   mr: 1,
                   '&:hover': {
-                    color: 'error.main'
+                    color: theme.palette.error.light
                   }
                 }
               }}

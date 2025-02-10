@@ -4,6 +4,7 @@ import type { EventDetails } from '../types';
 interface EventContextType {
   eventDetails: EventDetails | null;
   updateEventDetails: (details: EventDetails) => void;
+  clearEventDetails: () => void;
 }
 
 const EventContext = createContext<EventContextType | undefined>(undefined);
@@ -15,19 +16,36 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     // Load event details from localStorage on mount
     const savedEventDetails = localStorage.getItem('eventDetails');
     if (savedEventDetails) {
-      const parsedDetails = JSON.parse(savedEventDetails);
-      parsedDetails.eventDate = new Date(parsedDetails.eventDate);
-      setEventDetails(parsedDetails);
+      try {
+        const parsedDetails = JSON.parse(savedEventDetails);
+        // Ensure date is properly parsed
+        parsedDetails.eventDate = new Date(parsedDetails.eventDate);
+        setEventDetails(parsedDetails);
+      } catch (error) {
+        console.error('Error parsing event details:', error);
+        localStorage.removeItem('eventDetails');
+      }
     }
   }, []);
 
   const updateEventDetails = (details: EventDetails) => {
-    setEventDetails(details);
-    localStorage.setItem('eventDetails', JSON.stringify(details));
+    // Ensure we're working with a Date object
+    const updatedDetails = {
+      ...details,
+      eventDate: details.eventDate instanceof Date ? details.eventDate : new Date(details.eventDate)
+    };
+    setEventDetails(updatedDetails);
+    localStorage.setItem('eventDetails', JSON.stringify(updatedDetails));
+  };
+
+  const clearEventDetails = () => {
+    setEventDetails(null);
+    localStorage.removeItem('eventDetails');
+    localStorage.removeItem('selectedProducts');
   };
 
   return (
-    <EventContext.Provider value={{ eventDetails, updateEventDetails }}>
+    <EventContext.Provider value={{ eventDetails, updateEventDetails, clearEventDetails }}>
       {children}
     </EventContext.Provider>
   );
