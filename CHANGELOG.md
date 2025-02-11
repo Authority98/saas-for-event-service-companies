@@ -79,6 +79,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Protected route implementation
   - Admin user creation script
   - Role-based access control
+- Enhanced landing page animations and interactions
+  - Added smooth guest count animation in quote generator
+  - Added initial animation state handling
+  - Improved spacing between hero and features sections
+  - Updated CTA button navigation to payment page
 
 ### Changed
 - Enhanced dashboard UI components
@@ -107,6 +112,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added hover effect with error color
   - Better visual feedback
   - Consistent toast notifications
+- Refined InstantQuoteGenerator component
+  - Fixed initial guest count animation
+  - Added isFirstLoad state for better animation control
+  - Improved animation timing and transitions
+  - Enhanced visual feedback during animations
+- Updated landing page layout
+  - Increased spacing between hero and features sections
+  - Improved visual hierarchy and readability
+  - Better component transitions
 
 ### Fixed
 - Real-time update issues with InfoItem component

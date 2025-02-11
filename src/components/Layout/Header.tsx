@@ -1,17 +1,23 @@
 import React from 'react';
-import { AppBar, Toolbar, Typography, Box, useTheme, alpha } from '@mui/material';
-import { Tent } from 'lucide-react';
+import { AppBar, Toolbar, Typography, Box, useTheme, alpha, Button } from '@mui/material';
+import { Tent, MessageSquare } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import EventSummaryBar from '../EventDetails/EventSummaryBar';
 import { useEvent } from '../../contexts/EventContext';
 
-const Header: React.FC = () => {
+interface HeaderProps {
+  onContactClick: () => void;
+}
+
+const Header: React.FC<HeaderProps> = ({ onContactClick }) => {
   const theme = useTheme();
   const { eventDetails } = useEvent();
   const location = useLocation();
 
   // Only show EventSummaryBar on tent selection page
   const showEventSummary = location.pathname === '/tent-selection';
+  // Only show contact button on landing page
+  const showContactButton = location.pathname === '/';
 
   return (
     <AppBar 
@@ -63,6 +69,28 @@ const Header: React.FC = () => {
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           {showEventSummary && eventDetails && <EventSummaryBar eventDetails={eventDetails} />}
+          
+          {showContactButton && (
+            <Button
+              variant="outlined"
+              onClick={onContactClick}
+              startIcon={<MessageSquare size={18} />}
+              sx={{
+                px: 3,
+                py: 1,
+                borderRadius: 2,
+                textTransform: 'none',
+                fontWeight: 500,
+                borderColor: alpha(theme.palette.primary.main, 0.3),
+                '&:hover': {
+                  borderColor: 'primary.main',
+                  bgcolor: alpha(theme.palette.primary.main, 0.04),
+                }
+              }}
+            >
+              Contact Us
+            </Button>
+          )}
         </Box>
       </Toolbar>
     </AppBar>
