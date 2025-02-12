@@ -130,6 +130,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Removed total extras price display for cleaner UI
   - Added "Selected" badge for shortlisted tents
   - Improved Next button styling and positioning
+  - Made extras section conditionally visible (only on tent selection page)
 
 ### Fixed
 - Real-time update issues with InfoItem component

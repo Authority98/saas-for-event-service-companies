@@ -32,6 +32,7 @@ interface QuoteBuilderProps {
   extras: Extra[];
   getTotalExtrasPrice: () => number;
   showTitle?: boolean;
+  showExtras?: boolean;
   onExtraChange?: (extraId: string, value: boolean) => void;
   onExtraQuantityChange?: (extraId: string, quantity: number) => void;
   onRemoveProduct?: (productId: string) => void;
@@ -44,6 +45,7 @@ const QuoteBuilder: React.FC<QuoteBuilderProps> = ({
   extras,
   getTotalExtrasPrice,
   showTitle = true,
+  showExtras = true,
   onExtraChange,
   onExtraQuantityChange,
   onRemoveProduct,
@@ -461,62 +463,64 @@ const QuoteBuilder: React.FC<QuoteBuilderProps> = ({
           )}
         </Box>
 
-        {/* Extras Section - Always Visible */}
-        <Box>
-          <Box 
-            sx={{ 
-              mb: 3,
-              position: 'relative',
-              height: '40px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}
-          >
-            <Divider 
+        {/* Extras Section - Only Visible when showExtras is true */}
+        {showExtras && (
+          <Box>
+            <Box 
               sx={{ 
-                width: '100%',
-                borderStyle: 'dashed',
-                borderWidth: '2px',
-                borderColor: 'divider'
-              }} 
-            />
-            <Box
-              sx={{
-                position: 'absolute',
-                bgcolor: 'background.paper',
-                px: 2,
-                py: 1,
-                borderRadius: '20px',
-                border: '1px solid',
-                borderColor: 'divider',
-                color: 'text.secondary',
-                fontSize: '0.75rem',
-                fontWeight: 500,
-                textTransform: 'uppercase',
-                letterSpacing: '0.1em'
+                mb: 3,
+                position: 'relative',
+                height: '40px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
               }}
             >
-              Available Extras
-            </Box>
-          </Box>
-
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-            {extras.map(extra => (
-              <Paper
-                key={extra.id}
+              <Divider 
+                sx={{ 
+                  width: '100%',
+                  borderStyle: 'dashed',
+                  borderWidth: '2px',
+                  borderColor: 'divider'
+                }} 
+              />
+              <Box
                 sx={{
-                  p: 2,
-                  borderRadius: 2,
+                  position: 'absolute',
+                  bgcolor: 'background.paper',
+                  px: 2,
+                  py: 1,
+                  borderRadius: '20px',
                   border: '1px solid',
                   borderColor: 'divider',
+                  color: 'text.secondary',
+                  fontSize: '0.75rem',
+                  fontWeight: 500,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.1em'
                 }}
               >
-                {renderExtra(extra)}
-              </Paper>
-            ))}
+                Available Extras
+              </Box>
+            </Box>
+
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+              {extras.map(extra => (
+                <Paper
+                  key={extra.id}
+                  sx={{
+                    p: 2,
+                    borderRadius: 2,
+                    border: '1px solid',
+                    borderColor: 'divider',
+                  }}
+                >
+                  {renderExtra(extra)}
+                </Paper>
+              ))}
+            </Box>
           </Box>
-        </Box>
+        )}
       </Box>
     </Paper>
   );
