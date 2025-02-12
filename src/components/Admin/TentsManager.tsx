@@ -164,6 +164,7 @@ const TentsManager = ({ products, tentTypes, onUpdate }: TentsManagerProps) => {
         onClose={() => setIsAddOpen(false)}
         onSubmit={handleAdd}
         loading={loading}
+        tentTypes={tentTypes}
       />
 
       <TentForm
@@ -175,6 +176,7 @@ const TentsManager = ({ products, tentTypes, onUpdate }: TentsManagerProps) => {
         onSubmit={handleEdit}
         loading={loading}
         initialData={selectedProduct}
+        tentTypes={tentTypes}
       />
     </Box>
   );

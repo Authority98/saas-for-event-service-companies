@@ -121,6 +121,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Increased spacing between hero and features sections
   - Improved visual hierarchy and readability
   - Better component transitions
+- Enhanced QuoteBuilder UI/UX:
+  - Improved empty state with animated tent icon and better messaging
+  - Added dashed borders and hover effects for selected tents
+  - Enhanced visual hierarchy with better typography and spacing
+  - Improved extras display in product cards
+  - Added price tooltips for quantity sliders
+  - Removed total extras price display for cleaner UI
+  - Added "Selected" badge for shortlisted tents
+  - Improved Next button styling and positioning
 
 ### Fixed
 - Real-time update issues with InfoItem component

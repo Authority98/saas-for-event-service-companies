@@ -10,7 +10,7 @@ export type Product = {
   updated_at?: string;
 };
 
-export type ExtraType = 'CHECKBOX' | 'QUANTITY' | 'TOGGLE_WITH_QUANTITY';
+export type ExtraType = 'CHECKBOX' | 'RANGE' | 'TOGGLE_WITH_QUANTITY';
 
 export type ExtraOption = {
   id: string;
@@ -30,13 +30,13 @@ export type Extra = {
   id: string;
   name: string;
   description?: string;
-  type: 'CHECKBOX' | 'QUANTITY' | 'TOGGLE_WITH_QUANTITY';
-  category: string;
-  price?: number;
+  type: ExtraType;
+  price: number;
   price_per_unit?: number;
   min_quantity?: number;
   max_quantity?: number;
-  options?: ToggleOption[] | null;
+  left_label?: string;  // For toggle switch left side text
+  right_label?: string; // For toggle switch right side text
   created_at?: string;
   updated_at?: string;
 };

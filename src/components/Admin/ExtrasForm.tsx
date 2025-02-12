@@ -9,25 +9,31 @@ import {
   MenuItem,
   SelectChangeEvent,
   InputAdornment,
+  Typography,
+  Slider,
+  Switch,
+  FormHelperText,
 } from '@mui/material';
 import FormDialog from './FormDialog';
+import type { ExtraType } from '../../types';
 
 interface ExtrasFormData {
   name: string;
   description: string;
-  category: string;
-  price: string;
-  type: 'CHECKBOX' | 'QUANTITY' | 'TOGGLE_WITH_QUANTITY';
+  type: ExtraType;
+  price: number;
+  price_per_unit?: number;
+  min_quantity?: number;
+  max_quantity?: number;
+  left_label?: string;
+  right_label?: string;
 }
 
-const CATEGORIES = [
-  { value: 'furniture', label: 'Furniture' },
-  { value: 'lighting', label: 'Lighting' },
-  { value: 'flooring', label: 'Flooring' },
-  { value: 'decoration', label: 'Decoration' },
-  { value: 'catering', label: 'Catering Equipment' },
-  { value: 'other', label: 'Other' },
-];
+const EXTRA_TYPES = [
+  { value: 'CHECKBOX', label: 'Checkbox', description: 'Simple yes/no selection' },
+  { value: 'RANGE', label: 'Range Slider', description: 'Select a value within a range' },
+  { value: 'TOGGLE_WITH_QUANTITY', label: 'Toggle Switch with Range Slider', description: 'Switch between two options with adjustable range' },
+] as const;
 
 interface ExtrasFormProps {
   open: boolean;
@@ -47,9 +53,13 @@ const ExtrasForm = ({
   const [formData, setFormData] = React.useState<ExtrasFormData>({
     name: '',
     description: '',
-    category: '',
-    price: '',
     type: 'CHECKBOX',
+    price: 0,
+    price_per_unit: undefined,
+    min_quantity: undefined,
+    max_quantity: undefined,
+    left_label: '',
+    right_label: '',
   });
 
   useEffect(() => {
@@ -57,21 +67,36 @@ const ExtrasForm = ({
       setFormData(prev => ({
         ...prev,
         ...initialData,
+        price: initialData.price || 0,
+        price_per_unit: initialData.price_per_unit,
+        min_quantity: initialData.min_quantity,
+        max_quantity: initialData.max_quantity,
+        left_label: initialData.left_label || '',
+        right_label: initialData.right_label || '',
       }));
     } else {
       setFormData({
         name: '',
         description: '',
-        category: '',
-        price: '',
         type: 'CHECKBOX',
+        price: 0,
+        price_per_unit: undefined,
+        min_quantity: undefined,
+        max_quantity: undefined,
+        left_label: '',
+        right_label: '',
       });
     }
   }, [initialData, open]);
 
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ 
+      ...prev, 
+      [name]: ['price', 'price_per_unit', 'min_quantity', 'max_quantity'].includes(name) 
+        ? value === '' ? 0 : Number(value)
+        : value 
+    }));
   };
 
   const handleSelectChange = (e: SelectChangeEvent) => {
@@ -80,6 +105,22 @@ const ExtrasForm = ({
   };
 
   const handleSubmit = () => {
+    if (!formData.name || !formData.type || formData.price === undefined) {
+      return;
+    }
+
+    if (formData.type === 'TOGGLE_WITH_QUANTITY') {
+      if (!formData.left_label || !formData.right_label || !formData.min_quantity || !formData.max_quantity) {
+        return;
+      }
+    }
+
+    if (formData.type === 'RANGE') {
+      if (!formData.min_quantity || !formData.max_quantity || !formData.price_per_unit) {
+        return;
+      }
+    }
+
     onSubmit(formData);
   };
 
@@ -119,39 +160,194 @@ const ExtrasForm = ({
             />
           </Grid>
 
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12}>
             <FormControl fullWidth required>
-              <InputLabel>Category</InputLabel>
+              <InputLabel>Type</InputLabel>
               <Select
-                name="category"
-                value={formData.category}
-                label="Category"
+                name="type"
+                value={formData.type}
+                label="Type"
                 onChange={handleSelectChange}
               >
-                {CATEGORIES.map(category => (
-                  <MenuItem key={category.value} value={category.value}>
-                    {category.label}
+                {EXTRA_TYPES.map(type => (
+                  <MenuItem key={type.value} value={type.value}>
+                    <Box>
+                      <Typography variant="body1">{type.label}</Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {type.description}
+                      </Typography>
+                    </Box>
                   </MenuItem>
                 ))}
               </Select>
+              <FormHelperText>
+                Select how this extra will be displayed in the quote builder
+              </FormHelperText>
             </FormControl>
           </Grid>
 
-          <Grid item xs={12} md={6}>
-            <TextField
-              fullWidth
-              label="Price"
-              name="price"
-              type="number"
-              value={formData.price}
-              onChange={handleTextChange}
-              required
-              placeholder="Enter price"
-              InputProps={{
-                startAdornment: <InputAdornment position="start">£</InputAdornment>,
-              }}
-            />
-          </Grid>
+          {formData.type === 'TOGGLE_WITH_QUANTITY' ? (
+            <>
+              <Grid item xs={12}>
+                <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
+                  Toggle Switch Settings
+                </Typography>
+                <Grid container spacing={2}>
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      fullWidth
+                      label="Left Label"
+                      name="left_label"
+                      value={formData.left_label}
+                      onChange={handleTextChange}
+                      required
+                      placeholder="e.g., Without Chairs"
+                      helperText="Text shown when toggle is off"
+                    />
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      fullWidth
+                      label="Right Label"
+                      name="right_label"
+                      value={formData.right_label}
+                      onChange={handleTextChange}
+                      required
+                      placeholder="e.g., With Chairs"
+                      helperText="Text shown when toggle is on"
+                    />
+                  </Grid>
+                </Grid>
+              </Grid>
+
+              <Grid item xs={12}>
+                <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
+                  Slider Settings
+                </Typography>
+                <Grid container spacing={2}>
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label="Slider Label"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleTextChange}
+                      required
+                      placeholder="e.g., Number of Chairs"
+                      helperText="Label shown above the slider"
+                    />
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      fullWidth
+                      label="Minimum Value"
+                      name="min_quantity"
+                      type="number"
+                      value={formData.min_quantity}
+                      onChange={handleTextChange}
+                      required
+                      placeholder="Enter minimum value"
+                      helperText="Minimum value on the slider"
+                    />
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      fullWidth
+                      label="Maximum Value"
+                      name="max_quantity"
+                      type="number"
+                      value={formData.max_quantity}
+                      onChange={handleTextChange}
+                      required
+                      placeholder="Enter maximum value"
+                      helperText="Maximum value on the slider"
+                    />
+                  </Grid>
+                </Grid>
+              </Grid>
+
+              <Grid item xs={12}>
+                <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
+                  Pricing
+                </Typography>
+                <TextField
+                  fullWidth
+                  label="Price"
+                  name="price"
+                  type="number"
+                  value={formData.price}
+                  onChange={handleTextChange}
+                  required
+                  placeholder="Enter price"
+                  helperText="Price per unit"
+                  InputProps={{
+                    startAdornment: <InputAdornment position="start">£</InputAdornment>,
+                  }}
+                />
+              </Grid>
+            </>
+          ) : (
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="Price"
+                name="price"
+                type="number"
+                value={formData.price}
+                onChange={handleTextChange}
+                required
+                placeholder="Enter price"
+                helperText="Price per unit"
+                InputProps={{
+                  startAdornment: <InputAdornment position="start">£</InputAdornment>,
+                }}
+              />
+            </Grid>
+          )}
+
+          {formData.type === 'RANGE' && (
+            <>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  label="Price Per Unit"
+                  name="price_per_unit"
+                  type="number"
+                  value={formData.price_per_unit}
+                  onChange={handleTextChange}
+                  required
+                  placeholder="Enter price per unit"
+                  InputProps={{
+                    startAdornment: <InputAdornment position="start">£</InputAdornment>,
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  label="Minimum Quantity"
+                  name="min_quantity"
+                  type="number"
+                  value={formData.min_quantity}
+                  onChange={handleTextChange}
+                  required
+                  placeholder="Enter minimum quantity"
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  label="Maximum Quantity"
+                  name="max_quantity"
+                  type="number"
+                  value={formData.max_quantity}
+                  onChange={handleTextChange}
+                  required
+                  placeholder="Enter maximum quantity"
+                />
+              </Grid>
+            </>
+          )}
         </Grid>
       </Box>
     </FormDialog>

@@ -11,14 +11,15 @@ import {
   InputAdornment,
 } from '@mui/material';
 import FormDialog from './FormDialog';
+import type { TentType } from '../../types';
 
 interface TentFormData {
   name: string;
   description: string;
-  tentType: string;
+  type: string;
   size: string;
-  capacity: string;
-  price: string;
+  price: number;
+  image_url?: string;
 }
 
 interface TentFormProps {
@@ -27,6 +28,7 @@ interface TentFormProps {
   onSubmit: (data: TentFormData) => void;
   loading?: boolean;
   initialData?: Partial<TentFormData>;
+  tentTypes: TentType[];
 }
 
 const TentForm = ({
@@ -35,14 +37,15 @@ const TentForm = ({
   onSubmit,
   loading = false,
   initialData,
+  tentTypes,
 }: TentFormProps) => {
   const [formData, setFormData] = React.useState<TentFormData>({
     name: '',
     description: '',
-    tentType: '',
+    type: '',
     size: '',
-    capacity: '',
-    price: '',
+    price: 0,
+    image_url: '',
   });
 
   useEffect(() => {
@@ -55,17 +58,20 @@ const TentForm = ({
       setFormData({
         name: '',
         description: '',
-        tentType: '',
+        type: tentTypes.length > 0 ? tentTypes[0].id : '',
         size: '',
-        capacity: '',
-        price: '',
+        price: 0,
+        image_url: '',
       });
     }
-  }, [initialData, open]);
+  }, [initialData, open, tentTypes]);
 
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ 
+      ...prev, 
+      [name]: name === 'price' ? Number(value) : value 
+    }));
   };
 
   const handleSelectChange = (e: SelectChangeEvent) => {
@@ -117,14 +123,16 @@ const TentForm = ({
             <FormControl fullWidth required>
               <InputLabel>Tent Type</InputLabel>
               <Select
-                name="tentType"
-                value={formData.tentType}
+                name="type"
+                value={formData.type}
                 label="Tent Type"
                 onChange={handleSelectChange}
               >
-                <MenuItem value="stretch">Stretch Tent</MenuItem>
-                <MenuItem value="traditional">Traditional Pole</MenuItem>
-                <MenuItem value="clearspan">Clear Span</MenuItem>
+                {tentTypes.map((type) => (
+                  <MenuItem key={type.id} value={type.name}>
+                    {type.name}
+                  </MenuItem>
+                ))}
               </Select>
             </FormControl>
           </Grid>
@@ -144,22 +152,6 @@ const TentForm = ({
           <Grid item xs={12} md={6}>
             <TextField
               fullWidth
-              label="Capacity"
-              name="capacity"
-              type="number"
-              value={formData.capacity}
-              onChange={handleTextChange}
-              required
-              placeholder="Enter maximum capacity"
-              InputProps={{
-                endAdornment: <InputAdornment position="end">people</InputAdornment>,
-              }}
-            />
-          </Grid>
-
-          <Grid item xs={12} md={6}>
-            <TextField
-              fullWidth
               label="Price"
               name="price"
               type="number"
@@ -170,6 +162,17 @@ const TentForm = ({
               InputProps={{
                 startAdornment: <InputAdornment position="start">£</InputAdornment>,
               }}
+            />
+          </Grid>
+
+          <Grid item xs={12} md={6}>
+            <TextField
+              fullWidth
+              label="Image URL"
+              name="image_url"
+              value={formData.image_url}
+              onChange={handleTextChange}
+              placeholder="Enter image URL"
             />
           </Grid>
         </Grid>

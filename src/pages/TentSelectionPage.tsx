@@ -133,6 +133,21 @@ const TentSelectionPage: React.FC = () => {
 
       if (error) throw error;
       setExtras(data || []);
+
+      // Initialize extras with their minimum quantities
+      const initialExtras: SelectedExtras = {};
+      data?.forEach(extra => {
+        if (extra.type === 'TOGGLE_WITH_QUANTITY' || extra.type === 'RANGE') {
+          initialExtras[extra.id] = {
+            selected: false,
+            quantity: extra.min_quantity || 0
+          };
+        }
+      });
+      setSelectedExtras(prev => ({
+        ...prev,
+        ...initialExtras
+      }));
     } catch (err) {
       console.error('Error fetching extras:', err);
       setError('Failed to load extras. Please try again later.');
@@ -223,17 +238,12 @@ const TentSelectionPage: React.FC = () => {
         total += extra.price ?? 0;
       }
 
-      if (extra.type === 'QUANTITY' && extraState.quantity) {
-        total += (extra.price ?? 0) * extraState.quantity;
+      if (extra.type === 'RANGE' && extraState.quantity !== undefined) {
+        total += (extra.price_per_unit ?? 0) * extraState.quantity;
       }
 
-      if (extra.type === 'TOGGLE_WITH_QUANTITY' && extraState.options) {
-        Object.entries(extraState.options).forEach(([optionId, optionState]) => {
-          const option = extra.options?.find(o => o.id === optionId);
-          if (option && optionState.selected && optionState.quantity) {
-            total += (option.price ?? 0) * optionState.quantity;
-          }
-        });
+      if (extra.type === 'TOGGLE_WITH_QUANTITY' && extraState.quantity !== undefined) {
+        total += (extra.price ?? 0) * extraState.quantity;
       }
     });
 
@@ -368,11 +378,7 @@ const TentSelectionPage: React.FC = () => {
                         </Typography>
 
                         {/* Selected Extras Display */}
-                        {Object.entries(selectedExtras).some(([_, extraValue]) => 
-                          extraValue.selected || 
-                          (extraValue.quantity && extraValue.quantity > 0) || 
-                          Object.values(extraValue.options || {}).some(opt => opt.selected)
-                        ) && (
+                        {Object.entries(selectedExtras).length > 0 && (
                           <Box sx={{ mb: 2 }}>
                             <Typography variant="caption" color="text.secondary">
                               Selected Extras:
@@ -394,7 +400,7 @@ const TentSelectionPage: React.FC = () => {
                                   );
                                 }
 
-                                if (extra.type === 'QUANTITY' && extraState.quantity && extraState.quantity > 0) {
+                                if (extra.type === 'RANGE' && extraState.quantity !== undefined) {
                                   return (
                                     <Chip
                                       key={extra.id}
@@ -406,20 +412,17 @@ const TentSelectionPage: React.FC = () => {
                                   );
                                 }
 
-                                if (extra.type === 'TOGGLE_WITH_QUANTITY' && extraState.options) {
-                                  return Object.entries(extraState.options).map(([optionId, optionState]) => {
-                                    const option = extra.options?.find(o => o.id === optionId);
-                                    if (!option || !optionState.selected) return null;
-                                    return (
-                                      <Chip
-                                        key={`${extra.id}-${optionId}`}
-                                        label={`${option.name} (${optionState.quantity})`}
-                                        size="small"
-                                        variant="outlined"
-                                        sx={{ fontSize: '0.7rem' }}
-                                      />
-                                    );
-                                  });
+                                if (extra.type === 'TOGGLE_WITH_QUANTITY' && extraState.quantity !== undefined) {
+                                  const toggleState = extraState.selected ? extra.right_label : extra.left_label;
+                                  return (
+                                    <Chip
+                                      key={extra.id}
+                                      label={`${extra.name} (${extraState.quantity}) - ${toggleState}`}
+                                      size="small"
+                                      variant="outlined"
+                                      sx={{ fontSize: '0.7rem' }}
+                                    />
+                                  );
                                 }
 
                                 return null;

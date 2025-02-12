@@ -12,18 +12,18 @@ import {
   IconButton,
   Typography,
   Alert,
+  Chip,
 } from '@mui/material';
 import { Plus, Edit, Trash2 } from 'lucide-react';
 import { ExtrasForm } from './';
 import { supabase } from '../../lib/supabase';
 import type { Extra } from '../../types';
 
-interface ExtrasFormData {
-  name: string;
-  description: string;
-  category: string;
-  price: string;
-}
+const TYPE_LABELS = {
+  CHECKBOX: 'Checkbox',
+  QUANTITY: 'Continuous Slider',
+  TOGGLE_WITH_QUANTITY: 'Toggle Switch',
+} as const;
 
 const ExtrasManager = () => {
   const [extras, setExtras] = useState<Extra[]>([]);
@@ -55,28 +55,48 @@ const ExtrasManager = () => {
     fetchExtras();
   }, []);
 
-  const handleAdd = async (data: ExtrasFormData) => {
+  const handleAdd = async (data: Partial<Extra>) => {
     try {
       setLoading(true);
       setError(null);
 
-      const { error: supabaseError } = await supabase
-        .from('extras')
-        .insert([data]);
+      // Format the data based on the type
+      const formattedData = {
+        name: data.name,
+        description: data.description,
+        type: data.type,
+        price: data.price || 0,
+        // Only include these fields if they are defined
+        ...(data.price_per_unit !== undefined && { price_per_unit: data.price_per_unit }),
+        ...(data.min_quantity !== undefined && { min_quantity: data.min_quantity }),
+        ...(data.max_quantity !== undefined && { max_quantity: data.max_quantity }),
+        ...(data.left_label !== undefined && { left_label: data.left_label }),
+        ...(data.right_label !== undefined && { right_label: data.right_label })
+      };
 
-      if (supabaseError) throw supabaseError;
+      console.log('Sending data to Supabase:', formattedData);
+
+      const { data: responseData, error: supabaseError } = await supabase
+        .from('extras')
+        .insert([formattedData])
+        .select();
+
+      if (supabaseError) {
+        console.error('Supabase error details:', supabaseError);
+        throw supabaseError;
+      }
 
       setIsAddOpen(false);
       fetchExtras();
     } catch (err) {
       console.error('Error adding extra:', err);
-      setError('Failed to add extra');
+      setError('Failed to add extra. Please check all required fields are filled correctly.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleEdit = async (data: ExtrasFormData) => {
+  const handleEdit = async (data: Partial<Extra>) => {
     if (!selectedExtra) return;
 
     try {
@@ -122,16 +142,6 @@ const ExtrasManager = () => {
     }
   };
 
-  const getFormData = (extra: Extra | null): Partial<ExtrasFormData> | undefined => {
-    if (!extra) return undefined;
-    return {
-      name: extra.name,
-      description: extra.description,
-      category: extra.category,
-      price: extra.price?.toString() || '',
-    };
-  };
-
   return (
     <Box>
       {error && (
@@ -156,17 +166,54 @@ const ExtrasManager = () => {
           <TableHead>
             <TableRow>
               <TableCell>Name</TableCell>
-              <TableCell>Category</TableCell>
+              <TableCell>Type</TableCell>
               <TableCell>Price</TableCell>
+              <TableCell>Details</TableCell>
               <TableCell align="right">Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {extras.map((extra) => (
               <TableRow key={extra.id}>
-                <TableCell>{extra.name}</TableCell>
-                <TableCell>{extra.category}</TableCell>
-                <TableCell>£{extra.price}</TableCell>
+                <TableCell>
+                  <Typography variant="body2">{extra.name}</Typography>
+                  {extra.description && (
+                    <Typography variant="caption" color="text.secondary" display="block">
+                      {extra.description}
+                    </Typography>
+                  )}
+                </TableCell>
+                <TableCell>
+                  <Chip 
+                    label={TYPE_LABELS[extra.type]} 
+                    size="small"
+                    sx={{ 
+                      bgcolor: 'background.default',
+                      fontWeight: 500
+                    }}
+                  />
+                </TableCell>
+                <TableCell>
+                  {extra.type === 'QUANTITY' ? (
+                    <Typography variant="body2">
+                      £{extra.price_per_unit} per unit
+                      {extra.min_quantity && extra.max_quantity && (
+                        <Typography variant="caption" display="block" color="text.secondary">
+                          Range: {extra.min_quantity} - {extra.max_quantity}
+                        </Typography>
+                      )}
+                    </Typography>
+                  ) : (
+                    <Typography variant="body2">£{extra.price}</Typography>
+                  )}
+                </TableCell>
+                <TableCell>
+                  {extra.type === 'QUANTITY' && (
+                    <Typography variant="caption" color="text.secondary">
+                      Min: {extra.min_quantity}, Max: {extra.max_quantity}
+                    </Typography>
+                  )}
+                </TableCell>
                 <TableCell align="right">
                   <IconButton
                     onClick={() => {
@@ -206,7 +253,7 @@ const ExtrasManager = () => {
         }}
         onSubmit={handleEdit}
         loading={loading}
-        initialData={getFormData(selectedExtra)}
+        initialData={selectedExtra || undefined}
       />
     </Box>
   );
