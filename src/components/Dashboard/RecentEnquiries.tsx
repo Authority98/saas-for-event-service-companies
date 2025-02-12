@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Paper, 
   Typography, 
@@ -7,25 +7,60 @@ import {
   alpha,
   IconButton,
   Tooltip,
-  LinearProgress
+  LinearProgress,
+  Chip,
 } from '@mui/material';
 import { Mail, Calendar, Users, ArrowUpRight } from 'lucide-react';
 import dayjs from 'dayjs';
+import { supabase } from '../../lib/supabase';
 
 interface Enquiry {
-  id: number;
+  id: string;
   name: string;
-  eventType: string;
-  date: string;
+  event_type: string;
+  event_date: string;
   status: string;
+  created_at: string;
 }
 
-interface RecentEnquiriesProps {
-  enquiries: Enquiry[];
-}
-
-const RecentEnquiries: React.FC<RecentEnquiriesProps> = ({ enquiries }) => {
+const RecentEnquiries: React.FC = () => {
   const theme = useTheme();
+  const [enquiries, setEnquiries] = useState<Enquiry[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchRecentEnquiries = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('enquiries')
+          .select('id, name, event_type, event_date, status, created_at')
+          .order('created_at', { ascending: false })
+          .limit(5);
+
+        if (error) throw error;
+        setEnquiries(data || []);
+      } catch (err) {
+        console.error('Error fetching recent enquiries:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRecentEnquiries();
+  }, []);
+
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'pending':
+        return theme.palette.warning.main;
+      case 'approved':
+        return theme.palette.success.main;
+      case 'rejected':
+        return theme.palette.error.main;
+      default:
+        return theme.palette.grey[500];
+    }
+  };
 
   return (
     <Paper 
@@ -81,19 +116,29 @@ const RecentEnquiries: React.FC<RecentEnquiriesProps> = ({ enquiries }) => {
             </Typography>
           </Box>
         </Box>
-        <LinearProgress 
-          variant="determinate" 
-          value={70} 
-          sx={{ 
-            width: 60,
-            height: 4,
-            borderRadius: 2,
-            bgcolor: alpha(theme.palette.primary.main, 0.1),
-            '& .MuiLinearProgress-bar': {
-              bgcolor: 'primary.main'
-            }
-          }} 
-        />
+        {loading ? (
+          <LinearProgress 
+            sx={{ 
+              width: 60,
+              height: 4,
+              borderRadius: 2,
+              bgcolor: alpha(theme.palette.primary.main, 0.1),
+              '& .MuiLinearProgress-bar': {
+                bgcolor: 'primary.main'
+              }
+            }} 
+          />
+        ) : (
+          <Chip 
+            label={`${enquiries.length} total`}
+            size="small"
+            sx={{ 
+              bgcolor: alpha(theme.palette.primary.main, 0.1),
+              color: 'primary.main',
+              fontWeight: 500
+            }}
+          />
+        )}
       </Box>
 
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -125,11 +170,11 @@ const RecentEnquiries: React.FC<RecentEnquiriesProps> = ({ enquiries }) => {
                 width: 40,
                 height: 40,
                 borderRadius: '12px',
-                bgcolor: (theme) => alpha(theme.palette.primary.main, 0.1),
+                bgcolor: (theme) => alpha(getStatusColor(enquiry.status), 0.1),
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: 'primary.main',
+                color: getStatusColor(enquiry.status),
                 fontWeight: 600,
                 fontSize: '1rem'
               }}
@@ -138,21 +183,33 @@ const RecentEnquiries: React.FC<RecentEnquiriesProps> = ({ enquiries }) => {
             </Box>
 
             <Box sx={{ flex: 1 }}>
-              <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
-                {enquiry.name}
-              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                  {enquiry.name}
+                </Typography>
+                <Chip 
+                  label={enquiry.status}
+                  size="small"
+                  sx={{ 
+                    bgcolor: alpha(getStatusColor(enquiry.status), 0.1),
+                    color: getStatusColor(enquiry.status),
+                    fontWeight: 500,
+                    fontSize: '0.65rem'
+                  }}
+                />
+              </Box>
 
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                   <Calendar size={14} />
                   <Typography variant="caption" color="text.secondary">
-                    {dayjs(enquiry.date).format('MMM D, YYYY')}
+                    {dayjs(enquiry.event_date).format('MMM D, YYYY')}
                   </Typography>
                 </Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                   <Users size={14} />
                   <Typography variant="caption" color="text.secondary">
-                    {enquiry.eventType}
+                    {enquiry.event_type}
                   </Typography>
                 </Box>
               </Box>

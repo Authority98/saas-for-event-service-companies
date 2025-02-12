@@ -84,6 +84,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added initial animation state handling
   - Improved spacing between hero and features sections
   - Updated CTA button navigation to payment page
+- Enhanced enquiry management system:
+  - Added status management functionality with new statuses:
+    - New Enquiry (info)
+    - In Discussion (warning)
+    - Quote Sent (secondary)
+    - Confirmed (success)
+    - Cancelled (error)
+  - Added status change menu in enquiries list
+  - Added status chip in enquiry details dialog
+- Real-time dashboard components:
+  - Added RecentEnquiries component showing latest enquiries
+  - Added PopularTentTypes component showing most selected tent types
+  - Added real-time data fetching from Supabase
+  - Added loading states and error handling
+  - Added empty state messages
+  - Added visual enhancements (gradients, animations, hover effects)
 
 ### Changed
 - Enhanced dashboard UI components
@@ -131,6 +147,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added "Selected" badge for shortlisted tents
   - Improved Next button styling and positioning
   - Made extras section conditionally visible (only on tent selection page)
+- Improved dashboard layout:
+  - Reorganized dashboard components for better visual hierarchy
+  - Made Recent Enquiries and Popular Tents boxes equal width
+  - Removed duplicate components
+  - Enhanced responsive design
+- Enhanced enquiry submission:
+  - Fixed column name mismatches in database schema
+  - Updated form field names to match database
+  - Added proper error handling
+  - Added success confirmation
+- Updated status management:
+  - Changed status labels to be more event-focused
+  - Improved status color coding
+  - Enhanced status change UX
 
 ### Fixed
 - Real-time update issues with InfoItem component
@@ -148,6 +178,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Fixed hook usage in non-component code
   - Improved toast message visibility
   - Fixed timing issues with navigation
+- Fixed enquiry submission issues:
+  - Corrected column name mismatches (eventType to event_type)
+  - Fixed telephone/phone field inconsistency
+  - Added missing created_at field
+- Fixed dashboard duplication:
+  - Removed duplicate Recent Enquiries and Popular Tents boxes
+  - Fixed component rendering logic
+- Fixed data fetching:
+  - Added proper error handling
+  - Added loading states
+  - Added empty state handling
 
 ## [0.2.0] - 2024-02-08
 

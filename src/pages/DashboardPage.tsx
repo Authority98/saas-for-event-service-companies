@@ -39,10 +39,12 @@ import {
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { TentsManager, ExtrasManager, TentTypesManager } from '../components/Admin';
+import { TentsManager, ExtrasManager, TentTypesManager, EnquiriesManager } from '../components/Admin';
 import { DashboardSidebar, DashboardStats, DashboardHeader, DashboardOverview } from '../components/Dashboard';
 import type { Product, TentType, Extra } from '../types';
 import type { MenuItem, DashboardStat } from '../components/Dashboard';
+import { PopularTentTypes } from '../components/Dashboard';
+import { RecentEnquiries } from '../components/Dashboard';
 
 const SIDEBAR_WIDTH = 280;
 
@@ -140,13 +142,7 @@ const DashboardPage: React.FC = () => {
     { 
       label: 'Enquiries', 
       icon: <Users size={20} />, 
-      component: (
-        <Box sx={{ textAlign: 'center', py: 8 }}>
-          <Typography variant="h6" color="text.secondary">
-            Enquiries feature coming soon
-          </Typography>
-        </Box>
-      )
+      component: <EnquiriesManager />
     },
     { 
       label: 'Analytics', 
@@ -221,17 +217,21 @@ const DashboardPage: React.FC = () => {
         }}
       >
         <DashboardHeader title={menuItems[activeTab].label} />
-        <Paper 
-          sx={{ 
-            borderRadius: 2,
-            overflow: 'hidden',
-            boxShadow: (theme) => `0 0 20px ${alpha(theme.palette.common.black, 0.05)}`
-          }}
-        >
-          <Box sx={{ p: { xs: 2, sm: 3 } }}>
+        <Grid container spacing={3}>
+          <Grid item xs={12}>
             {menuItems[activeTab].component}
-          </Box>
-        </Paper>
+          </Grid>
+          {activeTab === 0 && (
+            <>
+              <Grid item xs={12} md={6}>
+                <RecentEnquiries />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <PopularTentTypes />
+              </Grid>
+            </>
+          )}
+        </Grid>
       </Box>
     </Box>
   );

@@ -21,8 +21,12 @@ import {
 } from '@mui/material';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
-import ExtrasManager from '../components/Admin/ExtrasManager';
-import TentTypeManager from '../components/Admin/TentTypeManager';
+import {
+  TentsManager,
+  ExtrasManager,
+  TentTypesManager,
+  EnquiriesManager,
+} from '../components/Admin';
 import type { Product, TentType } from '../types';
 import { Edit, Trash2, X, Check } from 'lucide-react';
 
@@ -398,11 +402,11 @@ const AdminPage: React.FC = () => {
             )}
 
             {tabValue === 2 && (
-              <TentTypeManager />
+              <TentTypesManager />
             )}
 
             {tabValue === 3 && (
-              <Typography variant="h6">Customer Enquiries</Typography>
+              <EnquiriesManager />
             )}
           </Box>
         </Paper>

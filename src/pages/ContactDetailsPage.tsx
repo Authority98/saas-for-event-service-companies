@@ -122,14 +122,20 @@ const ContactDetailsPage: React.FC = () => {
       const eventDetails = eventDetailsStr ? JSON.parse(eventDetailsStr) : null;
 
       const enquiryData = {
-        ...contactDetails,
+        name: contactDetails.name,
+        email: contactDetails.email,
+        telephone: contactDetails.telephone,
+        event_type: contactDetails.eventType,
+        comments: contactDetails.comments,
+        send_brochure: contactDetails.sendBrochure,
         event_date: eventDetails?.eventDate,
         venue_location: eventDetails?.venueLocation,
         total_guests: eventDetails?.totalGuests,
         formal_dining_seats: eventDetails?.formalDiningSeats,
         selected_products: selectedProducts,
         selected_extras: selectedExtras,
-        status: 'pending'
+        status: 'pending',
+        created_at: new Date().toISOString()
       };
 
       const { error } = await supabase
@@ -253,6 +259,7 @@ const ContactDetailsPage: React.FC = () => {
               selectedExtras={selectedExtras}
               extras={extras}
               getTotalExtrasPrice={getTotalExtrasPrice}
+              showExtras={false}
             />
           </Grid>
         </Grid>
