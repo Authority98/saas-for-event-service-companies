@@ -20,10 +20,17 @@ import {
   Grid,
   Menu,
   MenuItem,
+  Stack,
+  TextField,
+  InputAdornment,
+  FormControl,
+  InputLabel,
+  Select,
 } from '@mui/material';
-import { Eye, X, MoreVertical } from 'lucide-react';
+import { Eye, X, MoreVertical, Search, Filter } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import dayjs from 'dayjs';
+import EnquiryDetails from './EnquiryDetails';
 
 interface Enquiry {
   id: string;
@@ -51,6 +58,10 @@ const EnquiriesManager: React.FC = () => {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [statusMenuAnchor, setStatusMenuAnchor] = useState<null | HTMLElement>(null);
   const [selectedEnquiryForStatus, setSelectedEnquiryForStatus] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [eventTypeFilter, setEventTypeFilter] = useState('all');
+  const [dateFilter, setDateFilter] = useState('all');
 
   const fetchEnquiries = async () => {
     try {
@@ -139,75 +150,173 @@ const EnquiriesManager: React.FC = () => {
     setSelectedEnquiryForStatus(null);
   };
 
+  const filteredEnquiries = enquiries.filter(enquiry => {
+    const matchesSearch = 
+      enquiry.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      enquiry.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      enquiry.event_type.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesStatus = statusFilter === 'all' || enquiry.status === statusFilter;
+    const matchesEventType = eventTypeFilter === 'all' || enquiry.event_type === eventTypeFilter;
+    
+    const eventDate = dayjs(enquiry.event_date);
+    const matchesDate = dateFilter === 'all' ||
+      (dateFilter === 'upcoming' && eventDate.isAfter(dayjs())) ||
+      (dateFilter === 'past' && eventDate.isBefore(dayjs())) ||
+      (dateFilter === 'thisMonth' && eventDate.isSame(dayjs(), 'month')) ||
+      (dateFilter === 'nextMonth' && eventDate.isAfter(dayjs().endOf('month')));
+
+    return matchesSearch && matchesStatus && matchesEventType && matchesDate;
+  });
+
   return (
     <Box>
-      {error && (
-        <Alert severity="error" sx={{ mb: 3 }}>
-          {error}
-        </Alert>
-      )}
-
-      <Box sx={{ mb: 3 }}>
+      <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Typography variant="h6">Customer Enquiries</Typography>
       </Box>
 
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Date</TableCell>
-              <TableCell>Name</TableCell>
-              <TableCell>Event Type</TableCell>
-              <TableCell>Event Date</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell align="right">Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {enquiries.map((enquiry) => (
-              <TableRow 
-                key={enquiry.id}
-                sx={{ 
-                  cursor: 'pointer',
-                  '&:hover': { bgcolor: 'action.hover' }
-                }}
-                onClick={() => handleViewDetails(enquiry)}
+      <Paper sx={{ p: 3, mb: 3 }}>
+        <Stack spacing={3}>
+          <TextField
+            fullWidth
+            placeholder="Search by name, email, or event type..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Search size={20} />
+                </InputAdornment>
+              ),
+            }}
+          />
+
+          <Box sx={{ display: 'flex', gap: 2 }}>
+            <FormControl fullWidth>
+              <InputLabel>Status</InputLabel>
+              <Select
+                value={statusFilter}
+                label="Status"
+                onChange={(e) => setStatusFilter(e.target.value)}
               >
-                <TableCell>{dayjs(enquiry.created_at).format('MMM D, YYYY')}</TableCell>
-                <TableCell>{enquiry.name}</TableCell>
-                <TableCell>{enquiry.event_type}</TableCell>
-                <TableCell>{dayjs(enquiry.event_date).format('MMM D, YYYY')}</TableCell>
-                <TableCell>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Chip
-                      label={enquiry.status}
-                      color={getStatusColor(enquiry.status)}
-                      size="small"
-                    />
+                <MenuItem value="all">All Status</MenuItem>
+                <MenuItem value="new">New Enquiry</MenuItem>
+                <MenuItem value="in_discussion">In Discussion</MenuItem>
+                <MenuItem value="quote_sent">Quote Sent</MenuItem>
+                <MenuItem value="confirmed">Confirmed</MenuItem>
+                <MenuItem value="cancelled">Cancelled</MenuItem>
+              </Select>
+            </FormControl>
+
+            <FormControl fullWidth>
+              <InputLabel>Event Type</InputLabel>
+              <Select
+                value={eventTypeFilter}
+                label="Event Type"
+                onChange={(e) => setEventTypeFilter(e.target.value)}
+              >
+                <MenuItem value="all">All Events</MenuItem>
+                <MenuItem value="Wedding">Wedding</MenuItem>
+                <MenuItem value="Corporate Event">Corporate Event</MenuItem>
+                <MenuItem value="Birthday Party">Birthday Party</MenuItem>
+                <MenuItem value="Anniversary">Anniversary</MenuItem>
+                <MenuItem value="Other">Other</MenuItem>
+              </Select>
+            </FormControl>
+
+            <FormControl fullWidth>
+              <InputLabel>Date</InputLabel>
+              <Select
+                value={dateFilter}
+                label="Date"
+                onChange={(e) => setDateFilter(e.target.value)}
+              >
+                <MenuItem value="all">All Dates</MenuItem>
+                <MenuItem value="upcoming">Upcoming Events</MenuItem>
+                <MenuItem value="past">Past Events</MenuItem>
+                <MenuItem value="thisMonth">This Month</MenuItem>
+                <MenuItem value="nextMonth">Next Month</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
+        </Stack>
+      </Paper>
+
+      {filteredEnquiries.length === 0 ? (
+        <Box sx={{ 
+          textAlign: 'center', 
+          py: 8,
+          bgcolor: 'background.paper',
+          borderRadius: 2,
+          border: '1px dashed',
+          borderColor: 'divider'
+        }}>
+          <Typography variant="h6" color="text.secondary">
+            No enquiries found matching your filters
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+            Try adjusting your search or filter criteria
+          </Typography>
+        </Box>
+      ) : (
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Date</TableCell>
+                <TableCell>Name</TableCell>
+                <TableCell>Event Type</TableCell>
+                <TableCell>Event Date</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell align="right">Actions</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {filteredEnquiries.map((enquiry) => (
+                <TableRow 
+                  key={enquiry.id}
+                  sx={{ 
+                    cursor: 'pointer',
+                    '&:hover': { bgcolor: 'action.hover' }
+                  }}
+                  onClick={() => handleViewDetails(enquiry)}
+                >
+                  <TableCell>{dayjs(enquiry.created_at).format('MMM D, YYYY')}</TableCell>
+                  <TableCell>{enquiry.name}</TableCell>
+                  <TableCell>{enquiry.event_type}</TableCell>
+                  <TableCell>{dayjs(enquiry.event_date).format('MMM D, YYYY')}</TableCell>
+                  <TableCell>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Chip
+                        label={enquiry.status}
+                        color={getStatusColor(enquiry.status)}
+                        size="small"
+                      />
+                      <IconButton
+                        size="small"
+                        onClick={(e) => handleStatusMenuOpen(e, enquiry.id)}
+                      >
+                        <MoreVertical size={16} />
+                      </IconButton>
+                    </Box>
+                  </TableCell>
+                  <TableCell align="right">
                     <IconButton
                       size="small"
-                      onClick={(e) => handleStatusMenuOpen(e, enquiry.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleViewDetails(enquiry);
+                      }}
                     >
-                      <MoreVertical size={16} />
+                      <Eye size={20} />
                     </IconButton>
-                  </Box>
-                </TableCell>
-                <TableCell align="right">
-                  <IconButton
-                    size="small"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleViewDetails(enquiry);
-                    }}
-                  >
-                    <Eye size={20} />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      )}
 
       {/* Status Menu */}
       <Menu
@@ -233,180 +342,11 @@ const EnquiriesManager: React.FC = () => {
       </Menu>
 
       {/* Details Dialog */}
-      <Dialog
+      <EnquiryDetails
         open={detailsOpen}
         onClose={() => setDetailsOpen(false)}
-        maxWidth="md"
-        fullWidth
-      >
-        <DialogTitle>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Typography variant="h6">Enquiry Details</Typography>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Chip 
-                  label={selectedEnquiry?.status} 
-                  color={getStatusColor(selectedEnquiry?.status || '')}
-                  size="small"
-                />
-                {selectedEnquiry && (
-                  <IconButton
-                    size="small"
-                    onClick={(e) => handleStatusMenuOpen(e, selectedEnquiry.id)}
-                  >
-                    <MoreVertical size={16} />
-                  </IconButton>
-                )}
-              </Box>
-            </Box>
-            <IconButton onClick={() => setDetailsOpen(false)} size="small">
-              <X size={20} />
-            </IconButton>
-          </Box>
-        </DialogTitle>
-        <DialogContent dividers>
-          {selectedEnquiry && (
-            <Grid container spacing={3}>
-              {/* Contact Information */}
-              <Grid item xs={12} md={6}>
-                <Paper sx={{ p: 2, height: '100%' }}>
-                  <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                    Contact Information
-                  </Typography>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                    <Typography variant="body1">
-                      <strong>Name:</strong> {selectedEnquiry.name}
-                    </Typography>
-                    <Typography variant="body1">
-                      <strong>Email:</strong> {selectedEnquiry.email}
-                    </Typography>
-                    <Typography variant="body1">
-                      <strong>Phone:</strong> {selectedEnquiry.telephone}
-                    </Typography>
-                  </Box>
-                </Paper>
-              </Grid>
-              
-              {/* Event Details */}
-              <Grid item xs={12} md={6}>
-                <Paper sx={{ p: 2, height: '100%' }}>
-                  <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                    Event Details
-                  </Typography>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                    <Typography variant="body1">
-                      <strong>Event Type:</strong> {selectedEnquiry.event_type}
-                    </Typography>
-                    <Typography variant="body1">
-                      <strong>Date:</strong> {dayjs(selectedEnquiry.event_date).format('MMM D, YYYY')}
-                    </Typography>
-                    <Typography variant="body1">
-                      <strong>Location:</strong> {selectedEnquiry.venue_location}
-                    </Typography>
-                    <Typography variant="body1">
-                      <strong>Total Guests:</strong> {selectedEnquiry.total_guests}
-                    </Typography>
-                    <Typography variant="body1">
-                      <strong>Formal Dining Seats:</strong> {selectedEnquiry.formal_dining_seats}
-                    </Typography>
-                  </Box>
-                </Paper>
-              </Grid>
-
-              {/* Selected Products */}
-              <Grid item xs={12} md={6}>
-                <Paper sx={{ p: 2 }}>
-                  <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                    Selected Products
-                  </Typography>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                    {selectedEnquiry.selected_products.map((product, index) => (
-                      <Box 
-                        key={index}
-                        sx={{ 
-                          p: 1.5,
-                          borderRadius: 1,
-                          bgcolor: 'background.default',
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center'
-                        }}
-                      >
-                        <Typography variant="body2">{product.name}</Typography>
-                        <Typography variant="body2" color="primary.main" fontWeight={500}>
-                          £{product.price}
-                        </Typography>
-                      </Box>
-                    ))}
-                  </Box>
-                </Paper>
-              </Grid>
-
-              {/* Selected Extras */}
-              <Grid item xs={12} md={6}>
-                <Paper sx={{ p: 2 }}>
-                  <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                    Selected Extras
-                  </Typography>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                    {Object.entries(selectedEnquiry.selected_extras).map(([extraId, extraData]: [string, any]) => {
-                      if (!extraData.selected && (!extraData.quantity || extraData.quantity === 0)) {
-                        return null;
-                      }
-                      return (
-                        <Box 
-                          key={extraId}
-                          sx={{ 
-                            p: 1.5,
-                            borderRadius: 1,
-                            bgcolor: 'background.default',
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center'
-                          }}
-                        >
-                          <Box>
-                            <Typography variant="body2">
-                              {extraData.name || "Extra Item"}
-                            </Typography>
-                            {extraData.quantity > 0 && (
-                              <Typography variant="caption" color="text.secondary">
-                                Quantity: {extraData.quantity}
-                              </Typography>
-                            )}
-                          </Box>
-                          {extraData.price && (
-                            <Typography variant="body2" color="primary.main" fontWeight={500}>
-                              £{extraData.price * (extraData.quantity || 1)}
-                            </Typography>
-                          )}
-                        </Box>
-                      );
-                    })}
-                  </Box>
-                </Paper>
-              </Grid>
-
-              {/* Additional Comments */}
-              {selectedEnquiry.comments && (
-                <Grid item xs={12}>
-                  <Paper sx={{ p: 2 }}>
-                    <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                      Additional Comments
-                    </Typography>
-                    <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
-                      {selectedEnquiry.comments}
-                    </Typography>
-                  </Paper>
-                </Grid>
-              )}
-            </Grid>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDetailsOpen(false)}>Close</Button>
-        </DialogActions>
-      </Dialog>
+        enquiry={selectedEnquiry}
+      />
     </Box>
   );
 };

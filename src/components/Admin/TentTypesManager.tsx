@@ -12,16 +12,34 @@ import {
   IconButton,
   Typography,
   Alert,
+  TextField,
+  InputAdornment,
+  Stack,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from '@mui/material';
-import { Plus, Edit, Trash2 } from 'lucide-react';
+import { Plus, Edit, Trash2, Search } from 'lucide-react';
 import { TentTypeForm } from './';
 import { supabase } from '../../lib/supabase';
 import { showToast } from '../../lib/toast';
-import type { TentType } from '../../types';
+
+interface TentType {
+  id: string;
+  name: string;
+  description?: string;
+  capacity: number;
+  features: string[];
+  status: 'active' | 'inactive';
+}
 
 interface TentTypeFormData {
   name: string;
-  description: string;
+  description?: string;
+  capacity: number;
+  features: string[];
+  status: 'active' | 'inactive';
 }
 
 const TentTypesManager = () => {
@@ -31,6 +49,21 @@ const TentTypesManager = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedTentType, setSelectedTentType] = useState<TentType | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [capacityFilter, setCapacityFilter] = useState('all');
+
+  const filteredTentTypes = tentTypes.filter(type => {
+    const matchesSearch = type.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         (type.description?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false);
+    const matchesStatus = statusFilter === 'all' || type.status === statusFilter;
+    const matchesCapacity = capacityFilter === 'all' || 
+                           (capacityFilter === 'small' && type.capacity <= 50) ||
+                           (capacityFilter === 'medium' && type.capacity > 50 && type.capacity <= 150) ||
+                           (capacityFilter === 'large' && type.capacity > 150);
+    
+    return matchesSearch && matchesStatus && matchesCapacity;
+  });
 
   const fetchTentTypes = async () => {
     try {
@@ -132,65 +165,142 @@ const TentTypesManager = () => {
     return {
       name: tentType.name,
       description: tentType.description,
+      capacity: tentType.capacity,
+      features: tentType.features,
+      status: tentType.status,
     };
   };
 
   return (
     <Box>
+      <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Typography variant="h6">Tent Types</Typography>
+        <Button
+          variant="contained"
+          startIcon={<Plus size={20} />}
+          onClick={() => setIsAddOpen(true)}
+        >
+          Add Tent Type
+        </Button>
+      </Box>
+
       {error && (
         <Alert severity="error" sx={{ mb: 3 }}>
           {error}
         </Alert>
       )}
 
-      <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="h6">Manage Tent Types</Typography>
-        <Button
-          variant="contained"
-          startIcon={<Plus size={20} />}
-          onClick={() => setIsAddOpen(true)}
-        >
-          Add New Tent Type
-        </Button>
-      </Box>
+      <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
+        <TextField
+          placeholder="Search tent types..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          sx={{ flex: 1 }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <Search size={20} />
+              </InputAdornment>
+            ),
+          }}
+        />
+        <FormControl sx={{ minWidth: 200 }}>
+          <InputLabel>Status</InputLabel>
+          <Select
+            value={statusFilter}
+            label="Status"
+            onChange={(e) => setStatusFilter(e.target.value)}
+          >
+            <MenuItem value="all">All Status</MenuItem>
+            <MenuItem value="active">Active</MenuItem>
+            <MenuItem value="inactive">Inactive</MenuItem>
+          </Select>
+        </FormControl>
+        <FormControl sx={{ minWidth: 200 }}>
+          <InputLabel>Capacity</InputLabel>
+          <Select
+            value={capacityFilter}
+            label="Capacity"
+            onChange={(e) => setCapacityFilter(e.target.value)}
+          >
+            <MenuItem value="all">All Sizes</MenuItem>
+            <MenuItem value="small">Small (≤ 50)</MenuItem>
+            <MenuItem value="medium">Medium (51-150)</MenuItem>
+            <MenuItem value="large">Large (&gt; 150)</MenuItem>
+          </Select>
+        </FormControl>
+      </Stack>
 
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell>Description</TableCell>
-              <TableCell align="right">Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {tentTypes.map((tentType) => (
-              <TableRow key={tentType.id}>
-                <TableCell>{tentType.name}</TableCell>
-                <TableCell>{tentType.description}</TableCell>
-                <TableCell align="right">
-                  <IconButton
-                    onClick={() => {
-                      setSelectedTentType(tentType);
-                      setIsEditOpen(true);
-                    }}
-                    size="small"
-                  >
-                    <Edit size={20} />
-                  </IconButton>
-                  <IconButton
-                    onClick={() => handleDelete(tentType.id)}
-                    size="small"
-                    color="error"
-                  >
-                    <Trash2 size={20} />
-                  </IconButton>
-                </TableCell>
+      {filteredTentTypes.length === 0 ? (
+        <Box sx={{ 
+          textAlign: 'center', 
+          py: 8,
+          bgcolor: 'background.paper',
+          borderRadius: 2,
+          border: '1px dashed',
+          borderColor: 'divider'
+        }}>
+          <Typography variant="h6" color="text.secondary">
+            No tent types found matching your filters
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+            Try adjusting your search or filter criteria
+          </Typography>
+        </Box>
+      ) : (
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Name</TableCell>
+                <TableCell>Description</TableCell>
+                <TableCell>Capacity</TableCell>
+                <TableCell>Features</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell align="right">Actions</TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+            </TableHead>
+            <TableBody>
+              {filteredTentTypes.map((type) => (
+                <TableRow key={type.id}>
+                  <TableCell>{type.name}</TableCell>
+                  <TableCell>{type.description}</TableCell>
+                  <TableCell>{type.capacity}</TableCell>
+                  <TableCell>{type.features?.join(', ') || 'No features'}</TableCell>
+                  <TableCell>
+                    <Typography
+                      sx={{
+                        textTransform: 'capitalize',
+                        color: type.status === 'active' ? 'success.main' : 'error.main'
+                      }}
+                    >
+                      {type.status}
+                    </Typography>
+                  </TableCell>
+                  <TableCell align="right">
+                    <IconButton
+                      onClick={() => {
+                        setSelectedTentType(type);
+                        setIsEditOpen(true);
+                      }}
+                      size="small"
+                    >
+                      <Edit size={20} />
+                    </IconButton>
+                    <IconButton
+                      onClick={() => handleDelete(type.id)}
+                      size="small"
+                      color="error"
+                    >
+                      <Trash2 size={20} />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      )}
 
       <TentTypeForm
         open={isAddOpen}
@@ -206,8 +316,15 @@ const TentTypesManager = () => {
           setSelectedTentType(null);
         }}
         onSubmit={handleEdit}
+        initialData={selectedTentType ? {
+          name: selectedTentType.name,
+          description: selectedTentType.description,
+          capacity: selectedTentType.capacity,
+          features: selectedTentType.features || [],
+          status: selectedTentType.status
+        } : undefined}
         loading={loading}
-        initialData={getFormData(selectedTentType)}
+        mode="edit"
       />
     </Box>
   );

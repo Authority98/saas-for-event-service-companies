@@ -125,14 +125,14 @@ const DashboardPage: React.FC = () => {
       component: <DashboardOverview stats={stats} />
     },
     { 
+      label: 'Enquiries', 
+      icon: <Users size={20} />, 
+      component: <EnquiriesManager />
+    },
+    { 
       label: 'Tents', 
       icon: <Tent size={20} />, 
       component: <TentsManager products={products} tentTypes={tentTypes} onUpdate={fetchDashboardData} />
-    },
-    { 
-      label: 'Extras', 
-      icon: <Layers size={20} />, 
-      component: <ExtrasManager /> 
     },
     { 
       label: 'Tent Types', 
@@ -140,32 +140,10 @@ const DashboardPage: React.FC = () => {
       component: <TentTypesManager /> 
     },
     { 
-      label: 'Enquiries', 
-      icon: <Users size={20} />, 
-      component: <EnquiriesManager />
-    },
-    { 
-      label: 'Analytics', 
-      icon: <BarChart3 size={20} />, 
-      component: (
-        <Box sx={{ textAlign: 'center', py: 8 }}>
-          <Typography variant="h6" color="text.secondary">
-            Analytics feature coming soon
-          </Typography>
-        </Box>
-      )
-    },
-    { 
-      label: 'Settings', 
-      icon: <Settings size={20} />, 
-      component: (
-        <Box sx={{ textAlign: 'center', py: 8 }}>
-          <Typography variant="h6" color="text.secondary">
-            Settings feature coming soon
-          </Typography>
-        </Box>
-      )
-    },
+      label: 'Extras', 
+      icon: <Layers size={20} />, 
+      component: <ExtrasManager /> 
+    }
   ];
 
   useEffect(() => {

@@ -11,6 +11,8 @@ import {
   FormControlLabel,
   Checkbox,
   MenuItem,
+  Alert,
+  CircularProgress,
 } from '@mui/material';
 import StepProgress from '../components/EventForm/StepProgress';
 import QuoteBuilder from '../components/Quote/QuoteBuilder';
@@ -46,6 +48,8 @@ const ContactDetailsPage: React.FC = () => {
   const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
   const [selectedExtras, setSelectedExtras] = useState<SelectedExtras>({});
   const [extras, setExtras] = useState<Extra[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     // Load selected products from localStorage
@@ -115,11 +119,17 @@ const ContactDetailsPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
+    setError(null);
     
     try {
       // Get event details from localStorage
       const eventDetailsStr = localStorage.getItem('eventDetails');
       const eventDetails = eventDetailsStr ? JSON.parse(eventDetailsStr) : null;
+
+      if (!eventDetails) {
+        throw new Error('Event details not found. Please start from the beginning.');
+      }
 
       const enquiryData = {
         name: contactDetails.name,
@@ -134,22 +144,35 @@ const ContactDetailsPage: React.FC = () => {
         formal_dining_seats: eventDetails?.formalDiningSeats,
         selected_products: selectedProducts,
         selected_extras: selectedExtras,
-        status: 'pending',
+        status: 'new',
         created_at: new Date().toISOString()
       };
 
-      const { error } = await supabase
+      const { error: supabaseError } = await supabase
         .from('enquiries')
         .insert([enquiryData]);
 
-      if (error) throw error;
+      if (supabaseError) {
+        console.error('Supabase error:', supabaseError);
+        if (supabaseError.code === '42501') {
+          throw new Error('Permission denied. Please try again later or contact support.');
+        }
+        throw new Error(supabaseError.message);
+      }
 
-      // Save to localStorage and navigate only if database save was successful
-      localStorage.setItem('contactDetails', JSON.stringify(contactDetails));
+      // Clear local storage
+      localStorage.removeItem('eventDetails');
+      localStorage.removeItem('selectedProducts');
+      localStorage.removeItem('selectedExtras');
+      localStorage.removeItem('contactDetails');
+
+      // Navigate to thank you page
       navigate('/thank-you');
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error submitting enquiry:', err);
-      // You might want to show an error message to the user here
+      setError(err.message || 'Failed to submit enquiry. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -162,6 +185,12 @@ const ContactDetailsPage: React.FC = () => {
           {/* Contact Form */}
           <Grid item xs={12} md={8}>
             <Paper elevation={3} sx={{ p: 4 }}>
+              {error && (
+                <Alert severity="error" sx={{ mb: 3 }}>
+                  {error}
+                </Alert>
+              )}
+
               <form onSubmit={handleSubmit}>
                 <Grid container spacing={3}>
                   <Grid item xs={12} sm={6}>
@@ -242,8 +271,17 @@ const ContactDetailsPage: React.FC = () => {
                         color="primary"
                         size="large"
                         type="submit"
+                        disabled={loading}
+                        sx={{ 
+                          minWidth: 200,
+                          height: 48,
+                        }}
                       >
-                        Submit Enquiry
+                        {loading ? (
+                          <CircularProgress size={24} color="inherit" />
+                        ) : (
+                          'Submit Enquiry'
+                        )}
                       </Button>
                     </Box>
                   </Grid>

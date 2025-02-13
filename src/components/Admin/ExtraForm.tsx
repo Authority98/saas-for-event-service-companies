@@ -14,29 +14,28 @@ import {
   Box,
   CircularProgress,
   Alert,
-  Chip,
-  Stack,
+  InputAdornment,
 } from '@mui/material';
 
-interface TentTypeFormData {
+interface ExtraFormData {
   name: string;
   description?: string;
-  capacity: number;
-  features: string[];
+  price: number;
+  category: string;
   status: 'active' | 'inactive';
 }
 
-interface TentTypeFormProps {
+interface ExtraFormProps {
   open: boolean;
   onClose: () => void;
-  onSubmit: (data: TentTypeFormData) => void;
-  initialData?: Partial<TentTypeFormData>;
+  onSubmit: (data: ExtraFormData) => void;
+  initialData?: Partial<ExtraFormData>;
   loading?: boolean;
   error?: string | null;
   mode?: 'add' | 'edit';
 }
 
-const TentTypeForm: React.FC<TentTypeFormProps> = ({
+const ExtraForm: React.FC<ExtraFormProps> = ({
   open,
   onClose,
   onSubmit,
@@ -45,45 +44,27 @@ const TentTypeForm: React.FC<TentTypeFormProps> = ({
   error = null,
   mode = 'add'
 }) => {
-  const [formData, setFormData] = useState<TentTypeFormData>({
+  const [formData, setFormData] = useState<ExtraFormData>({
     name: initialData?.name || '',
     description: initialData?.description || '',
-    capacity: initialData?.capacity || 0,
-    features: initialData?.features || [],
+    price: initialData?.price || 0,
+    category: initialData?.category || 'furniture',
     status: initialData?.status || 'active'
   });
-
-  const [newFeature, setNewFeature] = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'capacity' ? Number(value) : value
+      [name]: name === 'price' ? Number(value) : value
     }));
   };
 
-  const handleStatusChange = (e: any) => {
+  const handleSelectChange = (e: any) => {
+    const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      status: e.target.value
-    }));
-  };
-
-  const handleAddFeature = () => {
-    if (newFeature.trim()) {
-      setFormData(prev => ({
-        ...prev,
-        features: [...prev.features, newFeature.trim()]
-      }));
-      setNewFeature('');
-    }
-  };
-
-  const handleRemoveFeature = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      features: prev.features.filter((_, i) => i !== index)
+      [name]: value
     }));
   };
 
@@ -95,7 +76,7 @@ const TentTypeForm: React.FC<TentTypeFormProps> = ({
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>
-        {mode === 'add' ? 'Add New Tent Type' : 'Edit Tent Type'}
+        {mode === 'add' ? 'Add New Extra' : 'Edit Extra'}
       </DialogTitle>
       <DialogContent>
         <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
@@ -124,60 +105,46 @@ const TentTypeForm: React.FC<TentTypeFormProps> = ({
             <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
-                label="Capacity"
-                name="capacity"
+                label="Price"
+                name="price"
                 type="number"
-                value={formData.capacity}
+                value={formData.price}
                 onChange={handleChange}
                 required
+                InputProps={{
+                  startAdornment: <InputAdornment position="start">£</InputAdornment>,
+                }}
               />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth required>
+                <InputLabel>Category</InputLabel>
+                <Select
+                  name="category"
+                  value={formData.category}
+                  label="Category"
+                  onChange={handleSelectChange}
+                >
+                  <MenuItem value="furniture">Furniture</MenuItem>
+                  <MenuItem value="lighting">Lighting</MenuItem>
+                  <MenuItem value="decor">Decor</MenuItem>
+                  <MenuItem value="equipment">Equipment</MenuItem>
+                </Select>
+              </FormControl>
             </Grid>
             <Grid item xs={12} sm={6}>
               <FormControl fullWidth required>
                 <InputLabel>Status</InputLabel>
                 <Select
+                  name="status"
                   value={formData.status}
                   label="Status"
-                  onChange={handleStatusChange}
+                  onChange={handleSelectChange}
                 >
                   <MenuItem value="active">Active</MenuItem>
                   <MenuItem value="inactive">Inactive</MenuItem>
                 </Select>
               </FormControl>
-            </Grid>
-            <Grid item xs={12}>
-              <Box sx={{ mb: 1 }}>
-                <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
-                  <TextField
-                    fullWidth
-                    label="Add Feature"
-                    value={newFeature}
-                    onChange={(e) => setNewFeature(e.target.value)}
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        handleAddFeature();
-                      }
-                    }}
-                  />
-                  <Button
-                    variant="contained"
-                    onClick={handleAddFeature}
-                    disabled={!newFeature.trim()}
-                  >
-                    Add
-                  </Button>
-                </Stack>
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                  {formData.features.map((feature, index) => (
-                    <Chip
-                      key={index}
-                      label={feature}
-                      onDelete={() => handleRemoveFeature(index)}
-                    />
-                  ))}
-                </Box>
-              </Box>
             </Grid>
           </Grid>
         </Box>
@@ -192,7 +159,7 @@ const TentTypeForm: React.FC<TentTypeFormProps> = ({
           {loading ? (
             <CircularProgress size={24} />
           ) : mode === 'add' ? (
-            'Add Tent Type'
+            'Add Extra'
           ) : (
             'Save Changes'
           )}
@@ -209,4 +176,4 @@ const TentTypeForm: React.FC<TentTypeFormProps> = ({
   );
 };
 
-export default TentTypeForm; 
+export default ExtraForm; 

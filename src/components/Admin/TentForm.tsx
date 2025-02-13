@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   TextField,
   Grid,
@@ -9,64 +9,57 @@ import {
   Box,
   SelectChangeEvent,
   InputAdornment,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  CircularProgress,
+  Alert,
 } from '@mui/material';
 import FormDialog from './FormDialog';
 import type { TentType } from '../../types';
 
 interface TentFormData {
   name: string;
-  description: string;
   type: string;
   size: string;
   price: number;
-  image_url?: string;
+  description?: string;
+  status: 'available' | 'booked' | 'maintenance';
 }
 
 interface TentFormProps {
   open: boolean;
   onClose: () => void;
   onSubmit: (data: TentFormData) => void;
-  loading?: boolean;
   initialData?: Partial<TentFormData>;
-  tentTypes: TentType[];
+  tentTypes: { id: string; name: string; }[];
+  loading?: boolean;
+  error?: string | null;
+  mode?: 'add' | 'edit';
 }
 
-const TentForm = ({
+const TentForm: React.FC<TentFormProps> = ({
   open,
   onClose,
   onSubmit,
-  loading = false,
   initialData,
   tentTypes,
-}: TentFormProps) => {
-  const [formData, setFormData] = React.useState<TentFormData>({
-    name: '',
-    description: '',
-    type: '',
-    size: '',
-    price: 0,
-    image_url: '',
+  loading = false,
+  error = null,
+  mode = 'add'
+}) => {
+  const [formData, setFormData] = useState<TentFormData>({
+    name: initialData?.name || '',
+    type: initialData?.type || '',
+    size: initialData?.size || '',
+    price: initialData?.price || 0,
+    description: initialData?.description || '',
+    status: initialData?.status || 'available'
   });
 
-  useEffect(() => {
-    if (initialData) {
-      setFormData(prev => ({
-        ...prev,
-        ...initialData,
-      }));
-    } else {
-      setFormData({
-        name: '',
-        description: '',
-        type: tentTypes.length > 0 ? tentTypes[0].id : '',
-        size: '',
-        price: 0,
-        image_url: '',
-      });
-    }
-  }, [initialData, open, tentTypes]);
-
-  const handleTextChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ 
       ...prev, 
@@ -74,110 +67,122 @@ const TentForm = ({
     }));
   };
 
-  const handleSelectChange = (e: SelectChangeEvent) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
   const handleSubmit = () => {
     onSubmit(formData);
   };
 
   return (
-    <FormDialog
-      open={open}
-      onClose={onClose}
-      title={initialData ? 'Edit Tent' : 'Add New Tent'}
-      onSubmit={handleSubmit}
-      loading={loading}
-    >
-      <Box component="form" sx={{ p: 1 }}>
-        <Grid container spacing={3}>
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="Name"
-              name="name"
-              value={formData.name}
-              onChange={handleTextChange}
-              required
-              autoFocus
-              placeholder="Enter tent name"
-            />
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+      <DialogTitle>
+        {mode === 'add' ? 'Add New Tent' : 'Edit Tent'}
+      </DialogTitle>
+      <DialogContent>
+        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Name"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                required
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth required>
+                <InputLabel>Type</InputLabel>
+                <Select
+                  name="type"
+                  value={formData.type}
+                  onChange={handleChange}
+                  label="Type"
+                >
+                  {tentTypes.map((type) => (
+                    <MenuItem key={type.id} value={type.name}>
+                      {type.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Size"
+                name="size"
+                value={formData.size}
+                onChange={handleChange}
+                required
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Price"
+                name="price"
+                type="number"
+                value={formData.price}
+                onChange={handleChange}
+                required
+                InputProps={{
+                  startAdornment: <InputAdornment position="start">£</InputAdornment>,
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth required>
+                <InputLabel>Status</InputLabel>
+                <Select
+                  name="status"
+                  value={formData.status}
+                  onChange={handleChange}
+                  label="Status"
+                >
+                  <MenuItem value="available">Available</MenuItem>
+                  <MenuItem value="booked">Booked</MenuItem>
+                  <MenuItem value="maintenance">Maintenance</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Description"
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                multiline
+                rows={4}
+              />
+            </Grid>
           </Grid>
-
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="Description"
-              name="description"
-              value={formData.description}
-              onChange={handleTextChange}
-              multiline
-              rows={3}
-              placeholder="Enter tent description"
-            />
-          </Grid>
-
-          <Grid item xs={12} md={6}>
-            <FormControl fullWidth required>
-              <InputLabel>Tent Type</InputLabel>
-              <Select
-                name="type"
-                value={formData.type}
-                label="Tent Type"
-                onChange={handleSelectChange}
-              >
-                {tentTypes.map((type) => (
-                  <MenuItem key={type.id} value={type.name}>
-                    {type.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
-
-          <Grid item xs={12} md={6}>
-            <TextField
-              fullWidth
-              label="Size"
-              name="size"
-              value={formData.size}
-              onChange={handleTextChange}
-              required
-              placeholder="e.g., 10x15m"
-            />
-          </Grid>
-
-          <Grid item xs={12} md={6}>
-            <TextField
-              fullWidth
-              label="Price"
-              name="price"
-              type="number"
-              value={formData.price}
-              onChange={handleTextChange}
-              required
-              placeholder="Enter price"
-              InputProps={{
-                startAdornment: <InputAdornment position="start">£</InputAdornment>,
-              }}
-            />
-          </Grid>
-
-          <Grid item xs={12} md={6}>
-            <TextField
-              fullWidth
-              label="Image URL"
-              name="image_url"
-              value={formData.image_url}
-              onChange={handleTextChange}
-              placeholder="Enter image URL"
-            />
-          </Grid>
-        </Grid>
-      </Box>
-    </FormDialog>
+        </Box>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>Cancel</Button>
+        <Button
+          onClick={handleSubmit}
+          variant="contained"
+          disabled={loading}
+        >
+          {loading ? (
+            <CircularProgress size={24} />
+          ) : mode === 'add' ? (
+            'Add Tent'
+          ) : (
+            'Save Changes'
+          )}
+        </Button>
+      </DialogActions>
+      {error && (
+        <DialogContent>
+          <Alert severity="error" sx={{ mt: 2 }}>
+            {error}
+          </Alert>
+        </DialogContent>
+      )}
+    </Dialog>
   );
 };
 

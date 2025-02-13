@@ -8,6 +8,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Enhanced Enquiry Details popup:
+  - Modern and visually appealing design
+  - Sections for contact info, event details, products, and extras
+  - Gradient accents and smooth animations
+  - Action buttons for email, PDF download, and print
+  - All sections expanded by default for better UX
+  - Status indicators with appropriate colors
+  - Better organization of information
+- Search and filter features in enquiries section:
+  - Search by name, email, or event type
+  - Filter by status, event type, and date
+  - Clean white background integration
+  - Real-time filtering
+- Dashboard improvements:
+  - Click on recent enquiry opens enhanced details popup
+  - Popular tents navigation to tent section
+  - Better visual hierarchy
 - Custom Material-UI toast notifications
   - Success, error, warning, and info variants
   - White theme with colored accents

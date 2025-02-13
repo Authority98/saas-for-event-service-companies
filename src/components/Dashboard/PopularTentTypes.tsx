@@ -7,19 +7,25 @@ import {
   alpha,
   IconButton,
   Tooltip,
+  LinearProgress,
+  Chip,
   CircularProgress,
 } from '@mui/material';
 import { Tent, TrendingUp, Crown, ArrowUpRight } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { useNavigate } from 'react-router-dom';
 
-interface TentTypeStats {
+interface TentType {
+  id: string;
   name: string;
-  count: number;
+  bookings_count: number;
+  image_url: string;
 }
 
 const PopularTentTypes: React.FC = () => {
   const theme = useTheme();
-  const [tentTypes, setTentTypes] = useState<TentTypeStats[]>([]);
+  const navigate = useNavigate();
+  const [tentTypes, setTentTypes] = useState<TentType[]>([]);
   const [loading, setLoading] = useState(true);
   const [totalBookings, setTotalBookings] = useState(0);
 
@@ -54,7 +60,12 @@ const PopularTentTypes: React.FC = () => {
           .sort((a, b) => b.count - a.count)
           .slice(0, 5); // Get top 5
 
-        setTentTypes(sortedTentTypes);
+        setTentTypes(sortedTentTypes.map(type => ({
+          id: type.name,
+          name: type.name,
+          bookings_count: type.count,
+          image_url: ''
+        })));
         setTotalBookings(total);
       } catch (err) {
         console.error('Error fetching popular tents:', err);
@@ -66,12 +77,31 @@ const PopularTentTypes: React.FC = () => {
     fetchPopularTents();
   }, []);
 
-  const maxCount = Math.max(...tentTypes.map(t => t.count));
+  const maxCount = Math.max(...tentTypes.map(t => t.bookings_count));
+
+  const handleTentClick = (tentId: string) => {
+    navigate('/dashboard', { 
+      state: { 
+        activeTab: 2, // Index of Tents in the menu
+        highlightTentId: tentId 
+      } 
+    });
+  };
 
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 200 }}>
-        <CircularProgress />
+        <LinearProgress 
+          sx={{ 
+            width: 200,
+            height: 4,
+            borderRadius: 2,
+            bgcolor: alpha(theme.palette.primary.main, 0.1),
+            '& .MuiLinearProgress-bar': {
+              bgcolor: 'primary.main'
+            }
+          }} 
+        />
       </Box>
     );
   }
@@ -140,9 +170,10 @@ const PopularTentTypes: React.FC = () => {
         </Box>
       ) : (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          {tentTypes.map((type, index) => (
+          {tentTypes.map((tent) => (
             <Box
-              key={type.name}
+              key={tent.id}
+              onClick={() => handleTentClick(tent.id)}
               sx={{
                 p: 2,
                 borderRadius: 2,
@@ -152,7 +183,6 @@ const PopularTentTypes: React.FC = () => {
                 gap: 2,
                 transition: 'all 0.2s',
                 cursor: 'pointer',
-                position: 'relative',
                 boxShadow: '0 2px 8px 0 rgba(34, 41, 47, 0.08)',
                 '&:hover': {
                   transform: 'translateX(4px)',
@@ -165,7 +195,7 @@ const PopularTentTypes: React.FC = () => {
               }}
             >
               {/* Crown for the most popular tent */}
-              {index === 0 && (
+              {tent.id === 'Tent 1' && (
                 <Box
                   sx={{
                     position: 'absolute',
@@ -197,7 +227,7 @@ const PopularTentTypes: React.FC = () => {
 
               <Box sx={{ flex: 1 }}>
                 <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
-                  {type.name}
+                  {tent.name}
                 </Typography>
                 
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -214,7 +244,7 @@ const PopularTentTypes: React.FC = () => {
                     <Box 
                       sx={{ 
                         height: '100%',
-                        width: `${(type.count / maxCount) * 100}%`,
+                        width: `${(tent.bookings_count / maxCount) * 100}%`,
                         bgcolor: 'secondary.main',
                         borderRadius: 2,
                         transition: 'width 1s ease-in-out',
@@ -230,7 +260,7 @@ const PopularTentTypes: React.FC = () => {
                       textAlign: 'right'
                     }}
                   >
-                    {type.count} bookings
+                    {tent.bookings_count} bookings
                   </Typography>
                 </Box>
               </Box>
