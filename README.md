@@ -18,10 +18,14 @@ A modern SaaS platform for event service companies to manage their tent rentals 
   - Tent inventory management
   - Tent type categorization
   - Extras/Add-ons management
-  - Enquiry tracking
+  - Enhanced enquiry management:
+    - Modern details popup with expandable sections
+    - Advanced search and filtering capabilities
+    - Real-time status updates
+    - Email, PDF, and print actions
   - Real-time statistics
   - Recent enquiries overview
-  - Popular tent types analytics
+  - Popular tent types analytics with navigation
 
 ### Technical Features
 - **Modern Tech Stack**
@@ -33,6 +37,8 @@ A modern SaaS platform for event service companies to manage their tent rentals 
   - Responsive design
   - Form validation
   - Type safety
+  - Toast notifications
+  - Gradient UI elements
 
 ## 🛠 Tech Stack
 
@@ -128,20 +134,21 @@ A modern SaaS platform for event service companies to manage their tent rentals 
 ### Tables
 1. **products**
    - Stores tent inventory
-   - Fields: id, name, description, price, size, type, image_url, created_at, updated_at
+   - Fields: id, name, description, price, size, type, image_url, status, created_at, updated_at
 
 2. **tent_types**
    - Categorizes different tent styles
-   - Fields: id, name, description, image_url, created_at, updated_at
+   - Fields: id, name, description, capacity, features, status, image_url, created_at, updated_at
 
 3. **extras**
    - Additional rental items
-   - Fields: id, name, description, type, category, price, options, created_at, updated_at
-   - Supports multiple types: CHECKBOX, QUANTITY, TOGGLE_WITH_QUANTITY
+   - Fields: id, name, description, type, price, price_per_unit, min_quantity, max_quantity, left_label, right_label, options, status, created_at, updated_at
+   - Supports multiple types: CHECKBOX, RANGE, TOGGLE_WITH_QUANTITY
 
 4. **enquiries**
    - Customer enquiries and bookings
-   - Fields: id, name, email, event_type, event_date, venue_location, total_guests, formal_dining_seats, selected_products, selected_extras, status, created_at, updated_at
+   - Fields: id, name, email, telephone, event_type, event_date, venue_location, total_guests, formal_dining_seats, selected_products, selected_extras, comments, send_brochure, status, created_at, updated_at
+   - Status types: new, in_discussion, quote_sent, confirmed, cancelled
 
 ## 🔐 Security
 
