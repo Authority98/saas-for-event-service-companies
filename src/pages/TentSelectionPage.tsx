@@ -156,16 +156,19 @@ const TentSelectionPage: React.FC = () => {
 
   const handleProductSelect = (product: Product) => {
     if (selectedProducts.find(p => p.id === product.id)) {
-      setSelectedProducts(selectedProducts.filter(p => p.id !== product.id));
-      // Save selected products to localStorage
+      // Remove the product
       const updatedProducts = selectedProducts.filter(p => p.id !== product.id);
+      setSelectedProducts(updatedProducts);
       localStorage.setItem('selectedProducts', JSON.stringify(updatedProducts));
     } else {
-      setSelectedProducts([...selectedProducts, product]);
-      // Save selected products and extras to localStorage
-      const updatedProducts = [...selectedProducts, product];
+      // Add the product with a snapshot of current extras
+      const productWithExtras = {
+        ...product,
+        extras: JSON.parse(JSON.stringify(selectedExtras)) // Create a deep copy of current extras state
+      };
+      const updatedProducts = [...selectedProducts, productWithExtras];
+      setSelectedProducts(updatedProducts);
       localStorage.setItem('selectedProducts', JSON.stringify(updatedProducts));
-      localStorage.setItem('selectedExtras', JSON.stringify(selectedExtras));
     }
   };
 
@@ -232,6 +235,30 @@ const TentSelectionPage: React.FC = () => {
     
     extras.forEach(extra => {
       const extraState = selectedExtras[extra.id];
+      if (!extraState) return;
+
+      if (extra.type === 'CHECKBOX' && extraState.selected) {
+        total += extra.price ?? 0;
+      }
+
+      if (extra.type === 'RANGE' && extraState.quantity !== undefined) {
+        total += (extra.price_per_unit ?? 0) * extraState.quantity;
+      }
+
+      if (extra.type === 'TOGGLE_WITH_QUANTITY' && extraState.quantity !== undefined) {
+        total += (extra.price ?? 0) * extraState.quantity;
+      }
+    });
+
+    return total;
+  };
+
+  const getProductExtrasPrice = (productExtras: Product['extras']) => {
+    if (!productExtras) return 0;
+    
+    let total = 0;
+    extras.forEach(extra => {
+      const extraState = productExtras[extra.id];
       if (!extraState) return;
 
       if (extra.type === 'CHECKBOX' && extraState.selected) {
@@ -378,58 +405,66 @@ const TentSelectionPage: React.FC = () => {
                         </Typography>
 
                         {/* Selected Extras Display */}
-                        {Object.entries(selectedExtras).length > 0 && (
-                          <Box sx={{ mb: 2 }}>
-                            <Typography variant="caption" color="text.secondary">
-                              Selected Extras:
-                            </Typography>
-                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 0.5 }}>
-                              {extras.map(extra => {
-                                const extraState = selectedExtras[extra.id];
-                                if (!extraState) return null;
+                        {(() => {
+                          const shortlistedProduct = selectedProducts.find(p => p.id === product.id);
+                          const extrasToShow = shortlistedProduct?.extras || selectedExtras;
+                          
+                          if (Object.entries(extrasToShow).length > 0) {
+                            return (
+                              <Box sx={{ mb: 2 }}>
+                                <Typography variant="caption" color="text.secondary">
+                                  Selected Extras:
+                                </Typography>
+                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 0.5 }}>
+                                  {extras.map(extra => {
+                                    const extraState = extrasToShow[extra.id];
+                                    if (!extraState) return null;
 
-                                if (extra.type === 'CHECKBOX' && extraState.selected) {
-                                  return (
-                                    <Chip
-                                      key={extra.id}
-                                      label={extra.name}
-                                      size="small"
-                                      variant="outlined"
-                                      sx={{ fontSize: '0.7rem' }}
-                                    />
-                                  );
-                                }
+                                    if (extra.type === 'CHECKBOX' && extraState.selected) {
+                                      return (
+                                        <Chip
+                                          key={extra.id}
+                                          label={extra.name}
+                                          size="small"
+                                          variant="outlined"
+                                          sx={{ fontSize: '0.7rem' }}
+                                        />
+                                      );
+                                    }
 
-                                if (extra.type === 'RANGE' && extraState.quantity !== undefined) {
-                                  return (
-                                    <Chip
-                                      key={extra.id}
-                                      label={`${extra.name} (${extraState.quantity})`}
-                                      size="small"
-                                      variant="outlined"
-                                      sx={{ fontSize: '0.7rem' }}
-                                    />
-                                  );
-                                }
+                                    if (extra.type === 'RANGE' && extraState.quantity !== undefined) {
+                                      return (
+                                        <Chip
+                                          key={extra.id}
+                                          label={`${extra.name} (${extraState.quantity})`}
+                                          size="small"
+                                          variant="outlined"
+                                          sx={{ fontSize: '0.7rem' }}
+                                        />
+                                      );
+                                    }
 
-                                if (extra.type === 'TOGGLE_WITH_QUANTITY' && extraState.quantity !== undefined) {
-                                  const toggleState = extraState.selected ? extra.right_label : extra.left_label;
-                                  return (
-                                    <Chip
-                                      key={extra.id}
-                                      label={`${extra.name} (${extraState.quantity}) - ${toggleState}`}
-                                      size="small"
-                                      variant="outlined"
-                                      sx={{ fontSize: '0.7rem' }}
-                                    />
-                                  );
-                                }
+                                    if (extra.type === 'TOGGLE_WITH_QUANTITY' && extraState.quantity !== undefined) {
+                                      const toggleState = extraState.selected ? extra.right_label : extra.left_label;
+                                      return (
+                                        <Chip
+                                          key={extra.id}
+                                          label={`${extra.name} (${extraState.quantity}) - ${toggleState}`}
+                                          size="small"
+                                          variant="outlined"
+                                          sx={{ fontSize: '0.7rem' }}
+                                        />
+                                      );
+                                    }
 
-                                return null;
-                              })}
-                            </Box>
-                          </Box>
-                        )}
+                                    return null;
+                                  })}
+                                </Box>
+                              </Box>
+                            );
+                          }
+                          return null;
+                        })()}
 
                         <Box sx={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
                           <Typography 
@@ -442,7 +477,14 @@ const TentSelectionPage: React.FC = () => {
                               gap: 0.5
                             }}
                           >
-                            £{product.price + getTotalExtrasPrice()}
+                            £{(() => {
+                              const shortlistedProduct = selectedProducts.find(p => p.id === product.id);
+                              return product.price + (
+                                shortlistedProduct 
+                                  ? getProductExtrasPrice(shortlistedProduct.extras)
+                                  : getTotalExtrasPrice()
+                              );
+                            })()}
                           </Typography>
                           <Button
                             variant={selectedProducts.find(p => p.id === product.id) ? "contained" : "outlined"}

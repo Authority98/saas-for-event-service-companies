@@ -8,6 +8,19 @@ export type Product = {
   image_url?: string;
   created_at?: string;
   updated_at?: string;
+  status: 'available' | 'booked' | 'maintenance';
+  extras?: {
+    [key: string]: {
+      selected: boolean;
+      quantity?: number;
+      options?: {
+        [key: string]: {
+          selected: boolean;
+          quantity: number;
+        };
+      };
+    };
+  };
 };
 
 export type ExtraType = 'CHECKBOX' | 'RANGE' | 'TOGGLE_WITH_QUANTITY';

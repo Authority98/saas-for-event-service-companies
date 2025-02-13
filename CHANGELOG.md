@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - All sections expanded by default for better UX
   - Status indicators with appropriate colors
   - Better organization of information
+  - Fixed "Unknown" extras issue by properly fetching and enriching extras data
 - Search and filter features in enquiries section:
   - Search by name, email, or event type
   - Filter by status, event type, and date
@@ -178,6 +179,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Changed status labels to be more event-focused
   - Improved status color coding
   - Enhanced status change UX
+- Removed status field from tent management:
+  - Simplified tent form by removing unnecessary status field
+  - Removed status-related code and database columns
+  - Improved form layout and UX
+- Enhanced extras data handling:
+  - Improved extras data fetching in enquiry details
+  - Added proper data enrichment for both admin and dashboard views
+  - Better error handling for extras data loading
 
 ### Fixed
 - Real-time update issues with InfoItem component

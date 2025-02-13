@@ -301,75 +301,93 @@ const EnquiryDetails: React.FC<EnquiryDetailsProps> = ({ open, onClose, enquiry 
               </Grid>
             </Section>
 
-            <Section title="Selected Products" icon={Tent} id="products" gradient={`linear-gradient(45deg, ${theme.palette.warning.main}, ${theme.palette.error.main})`}>
+            <Section title="Selected Tents & Extras" icon={Tent} id="products" gradient={`linear-gradient(45deg, ${theme.palette.success.main}, ${theme.palette.info.main})`}>
               <Grid container spacing={2}>
                 {enquiry.selected_products?.map((product: any, index: number) => (
                   <Grid item xs={12} key={index}>
                     <Box
                       sx={{
-                        p: 2,
+                        p: 3,
                         borderRadius: 2,
                         bgcolor: alpha(theme.palette.background.default, 0.5),
                         border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
                       }}
                     >
-                      <Box>
-                        <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                          {product.name}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          {product.type} - {product.size}
-                        </Typography>
-                      </Box>
-                      <Box sx={{ textAlign: 'right' }}>
-                        <Typography variant="subtitle2" color="primary" sx={{ fontWeight: 600 }}>
-                          £{product.price}
-                        </Typography>
-                        {product.quantity && (
-                          <Typography variant="caption" color="text.secondary">
-                            Qty: {product.quantity}
+                      {/* Tent Details */}
+                      <Box sx={{ 
+                        display: 'flex', 
+                        alignItems: 'flex-start', 
+                        justifyContent: 'space-between',
+                        mb: product.extras?.length > 0 ? 2 : 0
+                      }}>
+                        <Box>
+                          <Typography variant="subtitle1" sx={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Tent size={18} />
+                            {product.name}
                           </Typography>
-                        )}
+                          <Typography variant="body2" color="text.secondary">
+                            {product.type} - {product.size}
+                          </Typography>
+                        </Box>
+                        <Box sx={{ textAlign: 'right' }}>
+                          <Typography variant="subtitle2" color="primary" sx={{ fontWeight: 600 }}>
+                            £{product.price}
+                          </Typography>
+                          {product.quantity && (
+                            <Typography variant="caption" color="text.secondary">
+                              Qty: {product.quantity}
+                            </Typography>
+                          )}
+                        </Box>
                       </Box>
+
+                      {/* Associated Extras */}
+                      {product.extras && Object.keys(product.extras).length > 0 && (
+                        <>
+                          <Divider sx={{ my: 2 }} />
+                          <Typography variant="subtitle2" sx={{ mb: 1, color: 'text.secondary' }}>
+                            Selected Extras:
+                          </Typography>
+                          <Grid container spacing={1}>
+                            {Object.entries(product.extras).map(([extraId, extraData]: [string, any], extraIndex: number) => {
+                              if (!extraData.selected) return null;
+                              const extra = extraData.details || { name: 'Unknown Extra', price: 0, price_per_unit: 0 };
+                              const quantity = extraData.quantity || 1;
+                              const price = extra.price_per_unit ? extra.price_per_unit * quantity : extra.price;
+
+                              return (
+                                <Grid item xs={12} sm={6} key={extraIndex}>
+                                  <Box
+                                    sx={{
+                                      p: 1.5,
+                                      borderRadius: 1,
+                                      bgcolor: alpha(theme.palette.background.paper, 0.5),
+                                      border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                                    }}
+                                  >
+                                    <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                                      {extra.name}
+                                    </Typography>
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 0.5 }}>
+                                      <Typography variant="caption" color="text.secondary">
+                                        {extraData.quantity ? `Quantity: ${quantity}` : 'Selected'}
+                                      </Typography>
+                                      <Typography variant="body2" color="primary" sx={{ fontWeight: 500 }}>
+                                        £{price}
+                                      </Typography>
+                                    </Box>
+                                  </Box>
+                                </Grid>
+                              );
+                            })}
+                          </Grid>
+                        </>
+                      )}
                     </Box>
                   </Grid>
                 ))}
               </Grid>
             </Section>
-
-            {enquiry.selected_extras && enquiry.selected_extras.length > 0 && (
-              <Section title="Selected Extras" icon={Package} id="extras" gradient={`linear-gradient(45deg, ${theme.palette.success.main}, ${theme.palette.info.main})`}>
-                <Grid container spacing={2}>
-                  {enquiry.selected_extras.map((extra: any, index: number) => (
-                    <Grid item xs={12} sm={6} key={index}>
-                      <Box
-                        sx={{
-                          p: 2,
-                          borderRadius: 2,
-                          bgcolor: alpha(theme.palette.background.default, 0.5),
-                          border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-                        }}
-                      >
-                        <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                          {extra.name}
-                        </Typography>
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
-                          <Typography variant="caption" color="text.secondary">
-                            Quantity: {extra.quantity}
-                          </Typography>
-                          <Typography variant="subtitle2" color="primary" sx={{ fontWeight: 600 }}>
-                            £{extra.price * extra.quantity}
-                          </Typography>
-                        </Box>
-                      </Box>
-                    </Grid>
-                  ))}
-                </Grid>
-              </Section>
-            )}
 
             {enquiry.comments && (
               <Section title="Additional Comments" icon={MessageSquare} id="comments" gradient={`linear-gradient(45deg, ${theme.palette.grey[700]}, ${theme.palette.grey[900]})`}>

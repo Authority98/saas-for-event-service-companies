@@ -66,13 +66,44 @@ const EnquiriesManager: React.FC = () => {
   const fetchEnquiries = async () => {
     try {
       setLoading(true);
-      const { data, error: supabaseError } = await supabase
+      
+      // First fetch all enquiries
+      const { data: enquiriesData, error: enquiriesError } = await supabase
         .from('enquiries')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (supabaseError) throw supabaseError;
-      setEnquiries(data || []);
+      if (enquiriesError) throw enquiriesError;
+
+      // Fetch all extras
+      const { data: extrasData, error: extrasError } = await supabase
+        .from('extras')
+        .select('*');
+
+      if (extrasError) throw extrasError;
+
+      // Create a map of extras by ID for easy lookup
+      const extrasMap = extrasData.reduce((acc: any, extra: any) => {
+        acc[extra.id] = extra;
+        return acc;
+      }, {});
+
+      // Merge extras details with enquiries
+      const enrichedEnquiries = enquiriesData.map((enquiry: any) => {
+        if (enquiry.selected_extras) {
+          const enrichedExtras = Object.entries(enquiry.selected_extras).reduce((acc: any, [extraId, extraData]: [string, any]) => {
+            acc[extraId] = {
+              ...extraData,
+              details: extrasMap[extraId] || null
+            };
+            return acc;
+          }, {});
+          return { ...enquiry, selected_extras: enrichedExtras };
+        }
+        return enquiry;
+      });
+
+      setEnquiries(enrichedEnquiries || []);
     } catch (err) {
       console.error('Error fetching enquiries:', err);
       setError('Failed to fetch enquiries');
@@ -102,9 +133,46 @@ const EnquiriesManager: React.FC = () => {
     }
   };
 
-  const handleViewDetails = (enquiry: Enquiry) => {
-    setSelectedEnquiry(enquiry);
-    setDetailsOpen(true);
+  const handleViewDetails = async (enquiry: Enquiry) => {
+    try {
+      // Fetch all extras
+      const { data: extrasData, error: extrasError } = await supabase
+        .from('extras')
+        .select('*');
+
+      if (extrasError) throw extrasError;
+
+      // Create a map of extras by ID for easy lookup
+      const extrasMap = extrasData.reduce((acc: any, extra: any) => {
+        acc[extra.id] = extra;
+        return acc;
+      }, {});
+
+      // Enrich the selected products with extras details
+      const enrichedProducts = enquiry.selected_products?.map((product: any) => {
+        if (product.extras) {
+          const enrichedExtras = Object.entries(product.extras).reduce((acc: any, [extraId, extraData]: [string, any]) => {
+            acc[extraId] = {
+              ...extraData,
+              details: extrasMap[extraId] || null
+            };
+            return acc;
+          }, {});
+          return { ...product, extras: enrichedExtras };
+        }
+        return product;
+      });
+
+      // Set the enriched enquiry data
+      setSelectedEnquiry({
+        ...enquiry,
+        selected_products: enrichedProducts
+      });
+      setDetailsOpen(true);
+    } catch (err) {
+      console.error('Error fetching extras details:', err);
+      setError('Failed to load enquiry details');
+    }
   };
 
   const handleStatusChange = async (newStatus: string) => {

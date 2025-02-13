@@ -35,6 +35,8 @@ interface QuoteBuilderProps {
   showExtras?: boolean;
   onExtraChange?: (extraId: string, value: boolean) => void;
   onExtraQuantityChange?: (extraId: string, quantity: number) => void;
+  onToggleOptionChange?: (extraId: string, optionId: string, value: boolean) => void;
+  onToggleQuantityChange?: (extraId: string, optionId: string, quantity: number) => void;
   onRemoveProduct?: (productId: string) => void;
   onNext?: () => void;
 }
@@ -48,9 +50,35 @@ const QuoteBuilder: React.FC<QuoteBuilderProps> = ({
   showExtras = true,
   onExtraChange,
   onExtraQuantityChange,
+  onToggleOptionChange,
+  onToggleQuantityChange,
   onRemoveProduct,
   onNext,
 }) => {
+  const getProductTotalPrice = (product: Product) => {
+    if (!product.extras) return product.price;
+    
+    let extrasTotal = 0;
+    extras.forEach(extra => {
+      const extraState = product.extras?.[extra.id];
+      if (!extraState) return;
+
+      if (extra.type === 'CHECKBOX' && extraState.selected) {
+        extrasTotal += extra.price ?? 0;
+      }
+
+      if (extra.type === 'RANGE' && extraState.quantity !== undefined) {
+        extrasTotal += (extra.price_per_unit ?? 0) * extraState.quantity;
+      }
+
+      if (extra.type === 'TOGGLE_WITH_QUANTITY' && extraState.quantity !== undefined) {
+        extrasTotal += (extra.price ?? 0) * extraState.quantity;
+      }
+    });
+
+    return product.price + extrasTotal;
+  };
+
   const renderExtra = (extra: Extra) => {
     const extraState = selectedExtras[extra.id] || { selected: false };
 
@@ -263,11 +291,11 @@ const QuoteBuilder: React.FC<QuoteBuilderProps> = ({
                         {product.type} - {product.size}
                       </Typography>
                       <Typography variant="subtitle2" color="primary" sx={{ fontWeight: 600 }}>
-                        £{product.price}
+                        £{getProductTotalPrice(product)}
                       </Typography>
 
                       {/* Selected Extras Summary */}
-                      {Object.entries(selectedExtras).some(([_, extraValue]) => 
+                      {product.extras && Object.entries(product.extras).some(([_, extraValue]) => 
                         extraValue.selected || (extraValue.quantity && extraValue.quantity > 0)
                       ) && (
                         <Box sx={{ mt: 2, pt: 2, borderTop: '1px dashed', borderColor: 'divider' }}>
@@ -276,7 +304,7 @@ const QuoteBuilder: React.FC<QuoteBuilderProps> = ({
                           </Typography>
                           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 0.5 }}>
                             {extras.map(extra => {
-                              const extraState = selectedExtras[extra.id];
+                              const extraState = product.extras?.[extra.id];
                               if (!extraState) return null;
 
                               if (extra.type === 'CHECKBOX' && extraState.selected) {

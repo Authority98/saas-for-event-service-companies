@@ -69,14 +69,48 @@ const RecentEnquiries: React.FC = () => {
 
   const handleEnquiryClick = async (enquiryId: string) => {
     try {
-      const { data, error } = await supabase
+      // Fetch the enquiry details
+      const { data: enquiryData, error: enquiryError } = await supabase
         .from('enquiries')
         .select('*')
         .eq('id', enquiryId)
         .single();
 
-      if (error) throw error;
-      setSelectedEnquiry(data);
+      if (enquiryError) throw enquiryError;
+
+      // Fetch all extras
+      const { data: extrasData, error: extrasError } = await supabase
+        .from('extras')
+        .select('*');
+
+      if (extrasError) throw extrasError;
+
+      // Create a map of extras by ID for easy lookup
+      const extrasMap = extrasData.reduce((acc: any, extra: any) => {
+        acc[extra.id] = extra;
+        return acc;
+      }, {});
+
+      // Enrich the selected products with extras details
+      const enrichedProducts = enquiryData.selected_products?.map((product: any) => {
+        if (product.extras) {
+          const enrichedExtras = Object.entries(product.extras).reduce((acc: any, [extraId, extraData]: [string, any]) => {
+            acc[extraId] = {
+              ...extraData,
+              details: extrasMap[extraId] || null
+            };
+            return acc;
+          }, {});
+          return { ...product, extras: enrichedExtras };
+        }
+        return product;
+      });
+
+      // Set the enriched enquiry data
+      setSelectedEnquiry({
+        ...enquiryData,
+        selected_products: enrichedProducts
+      });
       setDetailsOpen(true);
     } catch (err) {
       console.error('Error fetching enquiry details:', err);

@@ -21,7 +21,7 @@ import {
   MenuItem,
   Grid,
 } from '@mui/material';
-import { Plus, Edit, Trash2, Search, Filter } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, Filter, ImageIcon } from 'lucide-react';
 import { TentForm } from './';
 import { supabase } from '../../lib/supabase';
 
@@ -32,6 +32,9 @@ interface Product {
   size: string;
   price: number;
   description?: string;
+  image_url?: string;
+  created_at?: string;
+  updated_at?: string;
   status: 'available' | 'booked' | 'maintenance';
 }
 
@@ -41,7 +44,8 @@ interface TentFormData {
   size: string;
   price: number;
   description?: string;
-  status: 'available' | 'booked' | 'maintenance';
+  status?: 'available' | 'booked' | 'maintenance';
+  image_url?: string;
 }
 
 interface TentsManagerProps {
@@ -60,14 +64,20 @@ const TentsManager: React.FC<TentsManagerProps> = ({ products, tentTypes, onUpda
   const [selectedType, setSelectedType] = useState('all');
   const [selectedStatus, setSelectedStatus] = useState('all');
 
-  const handleAdd = async (data: any) => {
+  const handleAdd = async (data: TentFormData) => {
     try {
       setLoading(true);
       setError(null);
 
+      // Add default status for new tents
+      const newTent = {
+        ...data,
+        status: 'available' as const
+      };
+
       const { error: supabaseError } = await supabase
         .from('products')
-        .insert([data]);
+        .insert([newTent]);
 
       if (supabaseError) throw supabaseError;
 
@@ -90,7 +100,15 @@ const TentsManager: React.FC<TentsManagerProps> = ({ products, tentTypes, onUpda
     try {
       const { error } = await supabase
         .from('products')
-        .update(data)
+        .update({
+          name: data.name,
+          type: data.type,
+          size: data.size,
+          price: data.price,
+          description: data.description,
+          status: data.status,
+          image_url: data.image_url
+        })
         .eq('id', selectedProduct.id);
 
       if (error) throw error;
@@ -219,6 +237,7 @@ const TentsManager: React.FC<TentsManagerProps> = ({ products, tentTypes, onUpda
           <Table>
             <TableHead>
               <TableRow>
+                <TableCell>Image</TableCell>
                 <TableCell>Name</TableCell>
                 <TableCell>Type</TableCell>
                 <TableCell>Size</TableCell>
@@ -229,6 +248,36 @@ const TentsManager: React.FC<TentsManagerProps> = ({ products, tentTypes, onUpda
             <TableBody>
               {filteredProducts.map((product) => (
                 <TableRow key={product.id}>
+                  <TableCell>
+                    {product.image_url ? (
+                      <Box
+                        component="img"
+                        src={product.image_url}
+                        alt={product.name}
+                        sx={{
+                          width: 60,
+                          height: 60,
+                          borderRadius: 1,
+                          objectFit: 'cover',
+                          bgcolor: 'background.default'
+                        }}
+                      />
+                    ) : (
+                      <Box
+                        sx={{
+                          width: 60,
+                          height: 60,
+                          borderRadius: 1,
+                          bgcolor: 'background.default',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
+                        }}
+                      >
+                        <ImageIcon size={24} color="action" />
+                      </Box>
+                    )}
+                  </TableCell>
                   <TableCell>{product.name}</TableCell>
                   <TableCell>{product.type}</TableCell>
                   <TableCell>{product.size}</TableCell>
@@ -262,8 +311,11 @@ const TentsManager: React.FC<TentsManagerProps> = ({ products, tentTypes, onUpda
         open={isAddOpen}
         onClose={() => setIsAddOpen(false)}
         onSubmit={handleAdd}
-        loading={loading}
         tentTypes={tentTypes}
+        loading={loading}
+        error={error}
+        mode="add"
+        initialData={{}}
       />
 
       <TentForm
@@ -273,9 +325,19 @@ const TentsManager: React.FC<TentsManagerProps> = ({ products, tentTypes, onUpda
           setSelectedProduct(null);
         }}
         onSubmit={handleEdit}
-        loading={loading}
-        initialData={selectedProduct}
         tentTypes={tentTypes}
+        loading={loading}
+        error={error}
+        mode="edit"
+        initialData={selectedProduct ? {
+          name: selectedProduct.name,
+          type: selectedProduct.type,
+          size: selectedProduct.size,
+          price: selectedProduct.price,
+          description: selectedProduct.description,
+          status: selectedProduct.status,
+          image_url: selectedProduct.image_url
+        } : undefined}
       />
     </Box>
   );
