@@ -178,7 +178,7 @@ const FeaturesSection: React.FC = () => {
                 lineHeight: 1.6,
               }}
             >
-              Powerful features designed to streamline your event service business
+              Powerful features designed to streamline your tent rental service business
             </Typography>
           </motion.div>
         </Box>

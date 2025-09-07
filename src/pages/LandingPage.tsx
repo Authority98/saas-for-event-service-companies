@@ -57,12 +57,12 @@ const features = [
   {
     icon: <Zap size={28} />,
     title: 'Instant Quotes',
-    description: 'Generate accurate event quotes in seconds, not hours. Our smart algorithm considers all aspects of your event for precise pricing.',
+    description: 'Generate accurate tent rental quotes in seconds, not hours. Our smart algorithm considers all aspects of your tent rental needs for precise pricing.',
   },
   {
     icon: <Calendar size={28} />,
-    title: 'Event Planning',
-    description: 'Streamlined event management and scheduling with an intuitive interface. Keep track of all your events in one place.',
+    title: 'Tent Rental Planning',
+    description: 'Streamlined tent rental management and scheduling with an intuitive interface. Keep track of all your tent rentals in one place.',
   },
   {
     icon: <BarChart size={28} />,

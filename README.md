@@ -1,13 +1,13 @@
-# Cheshire Tent Events - SaaS Platform
+# Cheshire Tent Rentals - SaaS Platform
 
-A comprehensive SaaS platform for event service companies to manage their tent rentals and event services. Built with modern web technologies, this platform provides both customer-facing booking tools and powerful admin management capabilities.
+A comprehensive SaaS platform for tent rental service companies to manage their tent rentals and tent rental services. Built with modern web technologies, this platform provides both customer-facing booking tools and powerful admin management capabilities.
 
 ## 🚀 Features
 
 ### Customer-Facing Features
 
-#### **Event Planning Wizard**
-- **Multi-step Event Configuration**
+#### **Tent Rental Planning Wizard**
+- **Multi-step Tent Rental Configuration**
   - Event details collection (date, venue, guest count)
   - Interactive tent selection with real-time pricing
   - Customizable extras and add-ons with dynamic pricing
@@ -413,4 +413,4 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ---
 
-**Built with ❤️ for event service companies worldwide**
+**Built with ❤️ for tent rental service companies worldwide**

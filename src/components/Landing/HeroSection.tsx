@@ -40,7 +40,7 @@ const HeroSection: React.FC = () => {
                   WebkitTextFillColor: 'transparent',
                 }}
               >
-                Revolutionize Your Event Services
+                Revolutionize Your Tent Rental Services
               </Typography>
               <Typography
                 variant="h2"

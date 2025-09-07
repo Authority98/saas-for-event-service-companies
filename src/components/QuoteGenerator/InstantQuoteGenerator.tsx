@@ -197,7 +197,7 @@ const InstantQuoteGenerator: React.FC = () => {
                   fontStyle: 'italic'
                 }}
               >
-                for event service companies
+                for tent rental service companies
               </Typography>
             </Box>
           </motion.div>

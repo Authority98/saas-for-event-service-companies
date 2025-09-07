@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **Rebranding**: Updated from "Event Services" to "Tent Rental Services" throughout the platform
+  - Updated all marketing copy and user-facing text
+  - Changed package name from "cheshire-tent-events" to "cheshire-tent-rentals"
+  - Updated HTML title and meta descriptions
+  - Revised feature descriptions to focus on tent rental services
+  - Updated README with new branding and terminology
+
 ### Added
 - Enhanced Enquiry Details popup:
   - Modern and visually appealing design

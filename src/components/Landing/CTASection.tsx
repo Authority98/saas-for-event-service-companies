@@ -30,7 +30,7 @@ const CTASection: React.FC = () => {
             Ready to Transform Your Business?
           </Typography>
           <Typography variant="h6" sx={{ mb: 4, opacity: 0.9 }}>
-            Be among the first to revolutionize your event services with our innovative platform
+            Be among the first to revolutionize your tent rental services with our innovative platform
           </Typography>
           <motion.div
             whileHover={{ scale: 1.05 }}
