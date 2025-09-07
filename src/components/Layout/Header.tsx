@@ -61,7 +61,7 @@ const Header: React.FC<HeaderProps> = ({ onContactClick }) => {
                   WebkitTextFillColor: 'transparent'
                 }}
               >
-                By Authority98
+                By Muhammad ❤️
               </Typography>
             </Box>
           </Link>
