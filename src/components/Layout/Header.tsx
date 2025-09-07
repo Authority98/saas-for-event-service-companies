@@ -46,7 +46,7 @@ const Header: React.FC<HeaderProps> = ({ onContactClick }) => {
             <Tent size={32} />
             <Box sx={{ ml: 1, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
               <Typography variant="h6" component="div" sx={{ lineHeight: 1.2 }}>
-                Event+
+                Tent+
               </Typography>
               <Typography 
                 variant="caption" 
