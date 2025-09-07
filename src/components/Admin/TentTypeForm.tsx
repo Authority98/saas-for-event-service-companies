@@ -16,7 +16,11 @@ import {
   Alert,
   Chip,
   Stack,
+  Card,
+  CardMedia,
+  IconButton,
 } from '@mui/material';
+import { Upload, X } from 'lucide-react';
 
 interface TentTypeFormData {
   name: string;
@@ -24,6 +28,7 @@ interface TentTypeFormData {
   capacity: number;
   features: string[];
   status: 'active' | 'inactive';
+  image_url?: string;
 }
 
 interface TentTypeFormProps {
@@ -50,10 +55,12 @@ const TentTypeForm: React.FC<TentTypeFormProps> = ({
     description: initialData?.description || '',
     capacity: initialData?.capacity || 0,
     features: initialData?.features || [],
-    status: initialData?.status || 'active'
+    status: initialData?.status || 'active',
+    image_url: initialData?.image_url || ''
   });
 
   const [newFeature, setNewFeature] = useState('');
+  const [imagePreview, setImagePreview] = useState<string | null>(initialData?.image_url || null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -85,6 +92,41 @@ const TentTypeForm: React.FC<TentTypeFormProps> = ({
       ...prev,
       features: prev.features.filter((_, i) => i !== index)
     }));
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // For now, we'll use a simple URL input approach
+      // In a real app, you'd upload to Supabase Storage
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const result = event.target?.result as string;
+        setImagePreview(result);
+        setFormData(prev => ({
+          ...prev,
+          image_url: result
+        }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleImageUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const url = e.target.value;
+    setFormData(prev => ({
+      ...prev,
+      image_url: url
+    }));
+    setImagePreview(url);
+  };
+
+  const handleRemoveImage = () => {
+    setFormData(prev => ({
+      ...prev,
+      image_url: ''
+    }));
+    setImagePreview(null);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -120,6 +162,64 @@ const TentTypeForm: React.FC<TentTypeFormProps> = ({
                 multiline
                 rows={4}
               />
+            </Grid>
+            <Grid item xs={12}>
+              <Box sx={{ mb: 2 }}>
+                <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                  Image
+                </Typography>
+                <TextField
+                  fullWidth
+                  label="Image URL"
+                  value={formData.image_url}
+                  onChange={handleImageUrlChange}
+                  placeholder="Enter image URL or upload a file"
+                  sx={{ mb: 2 }}
+                />
+                <input
+                  accept="image/*"
+                  style={{ display: 'none' }}
+                  id="image-upload"
+                  type="file"
+                  onChange={handleImageChange}
+                />
+                <label htmlFor="image-upload">
+                  <Button
+                    variant="outlined"
+                    component="span"
+                    startIcon={<Upload size={20} />}
+                    sx={{ mb: 2 }}
+                  >
+                    Upload Image
+                  </Button>
+                </label>
+                {imagePreview && (
+                  <Card sx={{ maxWidth: 200, position: 'relative' }}>
+                    <CardMedia
+                      component="img"
+                      height="120"
+                      image={imagePreview}
+                      alt="Preview"
+                    />
+                    <IconButton
+                      size="small"
+                      onClick={handleRemoveImage}
+                      sx={{
+                        position: 'absolute',
+                        top: 4,
+                        right: 4,
+                        backgroundColor: 'rgba(0,0,0,0.5)',
+                        color: 'white',
+                        '&:hover': {
+                          backgroundColor: 'rgba(0,0,0,0.7)',
+                        }
+                      }}
+                    >
+                      <X size={16} />
+                    </IconButton>
+                  </Card>
+                )}
+              </Box>
             </Grid>
             <Grid item xs={12} sm={6}>
               <TextField

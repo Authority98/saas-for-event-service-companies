@@ -358,24 +358,40 @@ const TentSelectionPage: React.FC = () => {
                           </Typography>
                         </Box>
                       )}
-                      <CardMedia
-                        component="img"
-                        height="200"
-                        image={product.image_url || 'https://images.unsplash.com/photo-1612454376902-577cd469d008?auto=format&fit=crop&w=800&q=80'}
-                        alt={product.name}
-                        sx={{
-                          position: 'relative',
-                          '&::after': {
-                            content: '""',
-                            position: 'absolute',
-                            bottom: 0,
-                            left: 0,
-                            right: 0,
-                            height: '50%',
-                            background: 'linear-gradient(to top, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0) 100%)',
-                          }
-                        }}
-                      />
+                      {product.image_url ? (
+                        <CardMedia
+                          component="img"
+                          height="200"
+                          image={product.image_url}
+                          alt={product.name}
+                          sx={{
+                            position: 'relative',
+                            '&::after': {
+                              content: '""',
+                              position: 'absolute',
+                              bottom: 0,
+                              left: 0,
+                              right: 0,
+                              height: '50%',
+                              background: 'linear-gradient(to top, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0) 100%)',
+                            }
+                          }}
+                        />
+                      ) : (
+                        <Box
+                          sx={{
+                            height: 200,
+                            backgroundColor: 'grey.100',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: 'text.secondary',
+                            fontSize: '0.875rem'
+                          }}
+                        >
+                          No Image
+                        </Box>
+                      )}
                       <CardContent>
                         <Typography variant="h6" gutterBottom>
                           {product.name}

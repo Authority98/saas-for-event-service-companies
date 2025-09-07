@@ -184,12 +184,28 @@ const EventDetailsPage: React.FC = () => {
                         }}
                       >
                         <CardActionArea>
-                          <CardMedia
-                            component="img"
-                            height="160"
-                            image={tentType.image_url || "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?auto=format&fit=crop&w=800&q=80"}
-                            alt={tentType.name}
-                          />
+                          {tentType.image_url ? (
+                            <CardMedia
+                              component="img"
+                              height="160"
+                              image={tentType.image_url}
+                              alt={tentType.name}
+                            />
+                          ) : (
+                            <Box
+                              sx={{
+                                height: 160,
+                                backgroundColor: 'grey.100',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                color: 'text.secondary',
+                                fontSize: '0.875rem'
+                              }}
+                            >
+                              No Image
+                            </Box>
+                          )}
                           <CardContent>
                             <Typography variant="h6" gutterBottom>
                               {tentType.name}

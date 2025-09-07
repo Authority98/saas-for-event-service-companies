@@ -32,6 +32,7 @@ interface TentTypeFormData {
   capacity: number;
   features: string[];
   status: 'active' | 'inactive';
+  image_url?: string;
 }
 
 const TentTypesManager = () => {
@@ -244,6 +245,7 @@ const TentTypesManager = () => {
           <Table>
             <TableHead>
               <TableRow>
+                <TableCell>Image</TableCell>
                 <TableCell>Name</TableCell>
                 <TableCell>Description</TableCell>
                 <TableCell>Capacity</TableCell>
@@ -255,6 +257,41 @@ const TentTypesManager = () => {
             <TableBody>
               {filteredTentTypes.map((type) => (
                 <TableRow key={type.id}>
+                  <TableCell>
+                    {type.image_url ? (
+                      <Box
+                        component="img"
+                        src={type.image_url}
+                        alt={type.name}
+                        sx={{
+                          width: 60,
+                          height: 60,
+                          objectFit: 'cover',
+                          borderRadius: 1,
+                          border: '1px solid',
+                          borderColor: 'divider'
+                        }}
+                      />
+                    ) : (
+                      <Box
+                        sx={{
+                          width: 60,
+                          height: 60,
+                          backgroundColor: 'grey.100',
+                          borderRadius: 1,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: 'text.secondary',
+                          fontSize: '0.75rem',
+                          border: '1px solid',
+                          borderColor: 'divider'
+                        }}
+                      >
+                        No Image
+                      </Box>
+                    )}
+                  </TableCell>
                   <TableCell>{type.name}</TableCell>
                   <TableCell>{type.description}</TableCell>
                   <TableCell>{type.capacity}</TableCell>
@@ -313,7 +350,8 @@ const TentTypesManager = () => {
           description: selectedTentType.description,
           capacity: selectedTentType.capacity,
           features: selectedTentType.features || [],
-          status: selectedTentType.status
+          status: selectedTentType.status,
+          image_url: selectedTentType.image_url
         } : undefined}
         loading={loading}
         mode="edit"
