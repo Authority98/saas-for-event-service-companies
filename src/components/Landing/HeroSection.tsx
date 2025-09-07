@@ -63,7 +63,7 @@ const HeroSection: React.FC = () => {
                   <Button
                     variant="contained"
                     size="large"
-                    onClick={() => navigate('/payment')}
+                    onClick={() => window.location.href = 'https://buy.polar.sh/polar_cl_luGfhM8SeyW92R1rfe9hA3c0pTFtGXM5UCRZY0Fuu6x'}
                     sx={{
                       px: 4,
                       py: 1.8,
@@ -125,4 +125,4 @@ const HeroSection: React.FC = () => {
   );
 };
 
-export default HeroSection; 
+export default HeroSection;

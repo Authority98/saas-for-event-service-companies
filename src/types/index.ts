@@ -77,6 +77,9 @@ export interface TentType {
   name: string;
   description?: string;
   image_url?: string;
+  capacity: number;
+  features: string[];
+  status: 'active' | 'inactive';
   created_at?: string;
   updated_at?: string;
 }

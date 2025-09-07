@@ -20,9 +20,14 @@ import {
 interface ExtrasFormData {
   name: string;
   description?: string;
+  type: 'CHECKBOX' | 'QUANTITY' | 'TOGGLE_WITH_QUANTITY';
   price: number;
-  category: string;
-  status: 'active' | 'inactive';
+  price_per_unit?: number;
+  min_quantity?: number;
+  max_quantity?: number;
+  options?: any;
+  left_label?: string;
+  right_label?: string;
 }
 
 interface ExtrasFormProps {
@@ -47,9 +52,14 @@ const ExtrasForm: React.FC<ExtrasFormProps> = ({
   const [formData, setFormData] = useState<ExtrasFormData>({
     name: initialData?.name || '',
     description: initialData?.description || '',
+    type: initialData?.type || 'CHECKBOX',
     price: initialData?.price || 0,
-    category: initialData?.category || 'furniture',
-    status: initialData?.status || 'active'
+    price_per_unit: initialData?.price_per_unit,
+    min_quantity: initialData?.min_quantity,
+    max_quantity: initialData?.max_quantity,
+    options: initialData?.options,
+    left_label: initialData?.left_label,
+    right_label: initialData?.right_label
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -118,31 +128,16 @@ const ExtrasForm: React.FC<ExtrasFormProps> = ({
             </Grid>
             <Grid item xs={12} sm={6}>
               <FormControl fullWidth required>
-                <InputLabel>Category</InputLabel>
+                <InputLabel>Type</InputLabel>
                 <Select
-                  name="category"
-                  value={formData.category}
-                  label="Category"
+                  name="type"
+                  value={formData.type}
+                  label="Type"
                   onChange={handleSelectChange}
                 >
-                  <MenuItem value="furniture">Furniture</MenuItem>
-                  <MenuItem value="lighting">Lighting</MenuItem>
-                  <MenuItem value="decor">Decor</MenuItem>
-                  <MenuItem value="equipment">Equipment</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <FormControl fullWidth required>
-                <InputLabel>Status</InputLabel>
-                <Select
-                  name="status"
-                  value={formData.status}
-                  label="Status"
-                  onChange={handleSelectChange}
-                >
-                  <MenuItem value="active">Active</MenuItem>
-                  <MenuItem value="inactive">Inactive</MenuItem>
+                  <MenuItem value="CHECKBOX">Checkbox</MenuItem>
+                  <MenuItem value="QUANTITY">Quantity</MenuItem>
+                  <MenuItem value="TOGGLE_WITH_QUANTITY">Toggle with Quantity</MenuItem>
                 </Select>
               </FormControl>
             </Grid>

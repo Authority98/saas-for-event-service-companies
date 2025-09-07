@@ -65,17 +65,19 @@ const DashboardPage: React.FC = () => {
       setLoading(true);
       setError(null);
 
-      const [productsData, tentTypesData, extrasData, enquiriesData] = await Promise.all([
+      const [productsData, tentTypesData, extrasData, enquiriesData, allEnquiriesData] = await Promise.all([
         supabase.from('products').select('*'),
         supabase.from('tent_types').select('*'),
         supabase.from('extras').select('*'),
-        supabase.from('enquiries').select('*').eq('status', 'pending')
+        supabase.from('enquiries').select('*').in('status', ['new', 'pending']),
+        supabase.from('enquiries').select('*')
       ]);
 
       if (productsData.error) throw productsData.error;
       if (tentTypesData.error) throw tentTypesData.error;
       if (extrasData.error) throw extrasData.error;
       if (enquiriesData.error) throw enquiriesData.error;
+      if (allEnquiriesData.error) throw allEnquiriesData.error;
 
       const newProducts = productsData.data || [];
       const newTentTypes = tentTypesData.data || [];
@@ -84,18 +86,21 @@ const DashboardPage: React.FC = () => {
       setTentTypes(newTentTypes);
       setExtras(extrasData.data || []);
 
+      // Calculate total visitors based on enquiries (more realistic than hardcoded)
+      const totalVisitors = Math.max((allEnquiriesData.data?.length || 0) * 15, 150); // Estimate 15 visitors per enquiry, minimum 150
+      
       setStats([
         {
           label: 'Total Visitors',
-          value: 2547,
+          value: totalVisitors,
           icon: <Eye size={24} />,
-          description: 'Website visitors this month'
+          description: 'Estimated website visitors this month'
         },
         {
           label: 'New Enquiries',
           value: enquiriesData.data?.length || 0,
           icon: <Mail size={24} />,
-          description: 'Pending customer enquiries'
+          description: 'New and pending customer enquiries'
         },
         {
           label: 'Total Tents',

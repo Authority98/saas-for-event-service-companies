@@ -1,8 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
-  'https://hdrfxmpssteinlribsob.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhkcmZ4bXBzc3RlaW5scmlic29iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzkwMTE3NDksImV4cCI6MjA1NDU4Nzc0OX0.ehi7xWmW56MJOK1P9wCW3v7kyVbnhAYeUosexlgd5kU'
+  'https://xkjjydzskuoiklpqzqtp.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhramp5ZHpza3VvaWtscHF6cXRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyMTg3OTgsImV4cCI6MjA3Mjc5NDc5OH0.FLw03fi3Hf8ibEsN_WKvJp4eEG_LzsWAsMzjSEJYdxg'
 );
 
 // This is just to verify the table exists and has the right structure

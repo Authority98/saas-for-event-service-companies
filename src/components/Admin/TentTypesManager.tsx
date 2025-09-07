@@ -24,15 +24,7 @@ import { Plus, Edit, Trash2, Search } from 'lucide-react';
 import { TentTypeForm } from './';
 import { supabase } from '../../lib/supabase';
 import { showToast } from '../../lib/toast';
-
-interface TentType {
-  id: string;
-  name: string;
-  description?: string;
-  capacity: number;
-  features: string[];
-  status: 'active' | 'inactive';
-}
+import { TentType } from '../../types';
 
 interface TentTypeFormData {
   name: string;

@@ -28,9 +28,16 @@ interface Extra {
   id: string;
   name: string;
   description?: string;
+  type: 'CHECKBOX' | 'QUANTITY' | 'TOGGLE_WITH_QUANTITY';
   price: number;
-  category: string;
-  status: 'active' | 'inactive';
+  price_per_unit?: number;
+  min_quantity?: number;
+  max_quantity?: number;
+  options?: any;
+  left_label?: string;
+  right_label?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 const ExtrasManager: React.FC = () => {
@@ -41,21 +48,19 @@ const ExtrasManager: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [selectedExtra, setSelectedExtra] = useState<Extra | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState('all');
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [typeFilter, setTypeFilter] = useState('all');
   const [priceFilter, setPriceFilter] = useState('all');
 
   const filteredExtras = extras.filter(extra => {
     const matchesSearch = extra.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          (extra.description?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false);
-    const matchesCategory = categoryFilter === 'all' || extra.category === categoryFilter;
-    const matchesStatus = statusFilter === 'all' || extra.status === statusFilter;
+    const matchesType = typeFilter === 'all' || extra.type === typeFilter;
     const matchesPrice = priceFilter === 'all' || 
                         (priceFilter === 'low' && extra.price <= 50) ||
                         (priceFilter === 'medium' && extra.price > 50 && extra.price <= 150) ||
                         (priceFilter === 'high' && extra.price > 150);
     
-    return matchesSearch && matchesCategory && matchesStatus && matchesPrice;
+    return matchesSearch && matchesType && matchesPrice;
   });
 
   useEffect(() => {
@@ -177,29 +182,16 @@ const ExtrasManager: React.FC = () => {
           }}
         />
         <FormControl sx={{ minWidth: 200 }}>
-          <InputLabel>Category</InputLabel>
+          <InputLabel>Type</InputLabel>
           <Select
-            value={categoryFilter}
-            label="Category"
-            onChange={(e) => setCategoryFilter(e.target.value)}
+            value={typeFilter}
+            label="Type"
+            onChange={(e) => setTypeFilter(e.target.value)}
           >
-            <MenuItem value="all">All Categories</MenuItem>
-            <MenuItem value="furniture">Furniture</MenuItem>
-            <MenuItem value="lighting">Lighting</MenuItem>
-            <MenuItem value="decor">Decor</MenuItem>
-            <MenuItem value="equipment">Equipment</MenuItem>
-          </Select>
-        </FormControl>
-        <FormControl sx={{ minWidth: 200 }}>
-          <InputLabel>Status</InputLabel>
-          <Select
-            value={statusFilter}
-            label="Status"
-            onChange={(e) => setStatusFilter(e.target.value)}
-          >
-            <MenuItem value="all">All Status</MenuItem>
-            <MenuItem value="active">Active</MenuItem>
-            <MenuItem value="inactive">Inactive</MenuItem>
+            <MenuItem value="all">All Types</MenuItem>
+            <MenuItem value="CHECKBOX">Checkbox</MenuItem>
+            <MenuItem value="QUANTITY">Quantity</MenuItem>
+            <MenuItem value="TOGGLE_WITH_QUANTITY">Toggle with Quantity</MenuItem>
           </Select>
         </FormControl>
         <FormControl sx={{ minWidth: 200 }}>
@@ -240,9 +232,8 @@ const ExtrasManager: React.FC = () => {
               <TableRow>
                 <TableCell>Name</TableCell>
                 <TableCell>Description</TableCell>
-                <TableCell>Category</TableCell>
+                <TableCell>Type</TableCell>
                 <TableCell>Price</TableCell>
-                <TableCell>Status</TableCell>
                 <TableCell align="right">Actions</TableCell>
               </TableRow>
             </TableHead>
@@ -253,20 +244,10 @@ const ExtrasManager: React.FC = () => {
                   <TableCell>{extra.description}</TableCell>
                   <TableCell>
                     <Typography sx={{ textTransform: 'capitalize' }}>
-                      {extra.category}
+                      {extra.type.replace('_', ' ').toLowerCase()}
                     </Typography>
                   </TableCell>
                   <TableCell>£{extra.price}</TableCell>
-                  <TableCell>
-                    <Typography
-                      sx={{
-                        textTransform: 'capitalize',
-                        color: extra.status === 'active' ? 'success.main' : 'error.main'
-                      }}
-                    >
-                      {extra.status}
-                    </Typography>
-                  </TableCell>
                   <TableCell align="right">
                     <IconButton
                       onClick={() => {
